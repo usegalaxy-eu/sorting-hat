@@ -14,7 +14,7 @@ sys.modules['galaxy.jobs'] = jobs # NOQA
 
 # Back to code.
 from flask import Flask, request, jsonify # NOQA
-from job_conf import _gateway, name_it # NOQA
+from jcaas import _gateway, name_it # NOQA
 
 app = Flask(__name__)
 

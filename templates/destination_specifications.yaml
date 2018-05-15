@@ -1,2 +1,0 @@
----
-{{ destinations | to_nice_yaml  }}
