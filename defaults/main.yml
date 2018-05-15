@@ -1,0 +1,15 @@
+---
+jobconf_directory: /usr/local/galaxy/galaxy-jobconf
+jobconf_venv: "{{ jobconf_directory }}/.venv"
+jobconf_user: galaxy
+jobconf_group: galaxy
+jobconf_supervisord: /usr/local/galaxy/galaxy-dist/.venv/bin/supervisorctl-wrapper 
+jobconf_bind: 127.0.0.1:8090
+jobconf_workers: 4
+
+jobconf_statsd:
+    host: 127.0.0.1
+    port: 8125
+    prefix: galaxy.service.job_conf
+
+#jobconf_sentrydsn: "https://..."
