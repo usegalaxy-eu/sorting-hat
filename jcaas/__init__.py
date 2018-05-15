@@ -21,11 +21,11 @@ SGE_MAX_CORES = 24
 SGE_MAX_MEM = 256 - 2
 
 # The default / base specification for the different environments.
-SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'destination_specifications.yaml')
+SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, 'config', 'destination_specifications.yaml')
 with open(SPECIFICATION_PATH, 'r') as handle:
     SPECIFICATIONS = yaml.load(handle)
 
-TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tool_destinations.yaml')
+TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, 'config', 'tool_destinations.yaml')
 with open(TOOL_DESTINATION_PATH, 'r') as handle:
     TOOL_DESTINATIONS = yaml.load(handle)
 
@@ -134,7 +134,8 @@ def build_spec(tool_spec):
             kwargs['PARALLELISATION'] = tool_cores
             raw_allocation_details['cpu'] = tool_cores
         else:
-            del params['request_cpus']
+            pass
+            # del params['request_cpus']
 
         if 'mem' in tool_spec:
             raw_allocation_details['mem'] = tool_memory
@@ -205,7 +206,7 @@ def get_training_machines(group='training'):
     if time.time() - TRAINING_MACHINES[group]['updated'] > STALE_CONDOR_HOST_INTERVAL:
         # Fetch a list of machines
         try:
-            machine_list = subprocess.check_output(['condor_status', '-long', '-attributes', 'Machine'])
+            machine_list = subprocess.check_output(['condor_status', '-long', '-attributes', 'Machine']).decode('utf8')
         except subprocess.CalledProcessError:
             machine_list = ''
         except FileNotFoundError:

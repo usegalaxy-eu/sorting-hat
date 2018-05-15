@@ -18,8 +18,7 @@ from jcaas import _gateway, name_it # NOQA
 
 app = Flask(__name__)
 
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                           'conf.yaml')
+CONFIG_PATH = os.environ['JCAAS_CONF']
 
 if os.path.exists(CONFIG_PATH):
     with open(CONFIG_PATH, 'r') as handle:
@@ -38,6 +37,12 @@ if os.path.exists(CONFIG_PATH):
         stats = Stats().init_app(app)
 
 
+def error(msg, code=400):
+    response = jsonify({'error': str(msg)})
+    response.status_code = code
+    return response
+
+
 @app.route('/', methods=['GET', 'POST'])
 def gateway():
     if request.method != 'POST':
@@ -45,26 +50,30 @@ def gateway():
 
     content = request.get_json()
     if not content:
-        return jsonify({})
+        error('missing content')
 
-    if 'tool_id' not in content or 'user_roles' not in content \
-            or 'email' not in content:
-        return jsonify({})
+    if 'tool_id' not in content:
+        error('missing tool_id')
 
-    try:
-        env, params, runner, spec = _gateway(content['tool_id'],
-                                             content['user_roles'],
-                                             content['email'])
-        return jsonify({
-            'env': env,
-            'params': params,
-            'runner': runner,
-            'spec': spec,
-        })
-    except Exception as e:
-        response = jsonify({'error': str(e)})
-        response.status_code = 500
-        return response
+    if 'user_roles' not in content:
+        error('missing user_roles')
+
+    if 'email' not in content:
+        error('missing email')
+
+    env, params, runner, spec = _gateway(content['tool_id'],
+                                            content['user_roles'],
+                                            content['email'])
+    return jsonify({
+        'env': env,
+        'params': params,
+        'runner': runner,
+        'spec': spec,
+    })
+    # except Exception as e:
+        # response = jsonify({'error': str(e)})
+        # response.status_code = 500
+        # return response
 
 
 @app.route('/failure', methods=['GET', 'POST'])

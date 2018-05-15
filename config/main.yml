@@ -1,9 +1,5 @@
 ---
-{% if jobconf_sentrydsn is defined %}
-sentry_dsn: "{{ jobconf_sentrydsn }}"
-{% endif %}
-
 statsd:
-    host: {{ jobconf_statsd.host }}
-    port: {{ jobconf_statsd.port }}
-    prefix: {{ jobconf_statsd.prefix }}
+    host: 127.0.0.1
+    port: 8125
+    prefix: jcaas
