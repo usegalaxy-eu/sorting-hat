@@ -1,7 +1,10 @@
 ---
 tools:
-  __default__: {}
-
+  echo_main_env:
+    runner: condor
+    authorized_users:
+      - hxr@informatik.uni-freiburg.de
+      - bot@usegalaxy.eu
   AccurateMassSearch: {cores: 4, mem: 8, runner: condor}
   AdditiveSeries: {cores: 4, mem: 8, runner: condor}
   BaselineFilter: {cores: 4, mem: 8, runner: condor}

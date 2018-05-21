@@ -43,37 +43,36 @@ def error(msg, code=400):
     return response
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['POST'])
 def gateway():
-    if request.method != 'POST':
-        return jsonify({})
-
     content = request.get_json()
+
     if not content:
-        error('missing content')
+        return error('missing content or content-type header')
 
     if 'tool_id' not in content:
-        error('missing tool_id')
+        return error('missing tool_id')
 
     if 'user_roles' not in content:
-        error('missing user_roles')
+        return error('missing user_roles')
 
     if 'email' not in content:
-        error('missing email')
+        return error('missing email')
 
-    env, params, runner, spec = _gateway(content['tool_id'],
-                                            content['user_roles'],
-                                            content['email'])
-    return jsonify({
-        'env': env,
-        'params': params,
-        'runner': runner,
-        'spec': spec,
-    })
-    # except Exception as e:
-        # response = jsonify({'error': str(e)})
-        # response.status_code = 500
-        # return response
+    try:
+        env, params, runner, spec = _gateway(content['tool_id'],
+                                                content['user_roles'],
+                                                content['email'])
+        return jsonify({
+            'env': env,
+            'params': params,
+            'runner': runner,
+            'spec': spec,
+        })
+    except Exception as e:
+        response = jsonify({'error': str(e)})
+        response.status_code = 500
+        return response
 
 
 @app.route('/failure', methods=['GET', 'POST'])

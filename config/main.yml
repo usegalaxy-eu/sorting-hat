@@ -3,3 +3,7 @@ statsd:
     host: 127.0.0.1
     port: 8125
     prefix: jcaas
+
+jcaas:
+    tools: config/tool_destinations.yaml
+    dests: config/destination_specifications.yaml

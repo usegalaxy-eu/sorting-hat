@@ -1,36 +1,35 @@
 from galaxy.jobs import JobDestination
-#from galaxy.jobs.mapper import JobMappingException
+from .destination.condor import Condor
+from .destination.sge import Sge
+from .destination.local import Local
+# from galaxy.jobs.mapper import JobMappingException
 
 import backoff
 import copy
 import json
 import logging
-import math
 import os
 import requests
-import subprocess
-import time
 import yaml
 
 log = logging.getLogger(__name__)
 
-# Maximum resources
-CONDOR_MAX_CORES = 40
-CONDOR_MAX_MEM = 250 - 2
-SGE_MAX_CORES = 24
-SGE_MAX_MEM = 256 - 2
+CONFIG_PATH = os.environ['JCAAS_CONF']
+with open(CONFIG_PATH, 'r') as handle:
+    APP_CONFIG = yaml.load(handle)
 
 # The default / base specification for the different environments.
-SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, 'config', 'destination_specifications.yaml')
-with open(SPECIFICATION_PATH, 'r') as handle:
+with open(APP_CONFIG['jcaas']['dests'], 'r') as handle:
     SPECIFICATIONS = yaml.load(handle)
 
-TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, 'config', 'tool_destinations.yaml')
-with open(TOOL_DESTINATION_PATH, 'r') as handle:
+with open(APP_CONFIG['jcaas']['tools'], 'r') as handle:
     TOOL_DESTINATIONS = yaml.load(handle)
 
 TRAINING_MACHINES = {}
-STALE_CONDOR_HOST_INTERVAL = 60  # seconds
+
+DEST_CONDOR = Condor()
+DEST_DRMAA = Sge()
+DEST_LOCAL = Local()
 
 
 def get_tool_id(tool_id):
@@ -38,7 +37,8 @@ def get_tool_id(tool_id):
     Convert ``toolshed.g2.bx.psu.edu/repos/devteam/column_maker/Add_a_column1/1.1.0``
     to ``Add_a_column``
 
-    :param str tool_id: a tool id, can be the short kind (e.g. upload1) or the long kind with the full TS path.
+    :param str tool_id: a tool id, can be the short kind (e.g. upload1) or the
+                        long kind with the full TS path.
 
     :returns: a short tool ID.
     :rtype: str
@@ -74,11 +74,9 @@ def name_it(tool_spec):
     return name
 
 
-def build_spec(tool_spec):
-    destination = tool_spec.get('runner', 'sge')
-
-    env = dict(SPECIFICATIONS.get(destination, {'env': {}})['env'])
-    params = dict(SPECIFICATIONS.get(destination, {'params': {}})['params'])
+def finalize_spec(requested_destination_name, destination, tool_spec):
+    env = dict(SPECIFICATIONS.get(requested_destination_name, {'env': {}})['env'])
+    params = dict(SPECIFICATIONS.get(requested_destination_name, {'params': {}})['params'])
     # A dictionary that stores the "raw" details that went into the template.
     raw_allocation_details = {}
 
@@ -90,12 +88,8 @@ def build_spec(tool_spec):
     # produce unschedulable jobs, requesting more ram/cpu than is available in a
     # given location. Currently we clamp those values rather than intelligently
     # re-scheduling to a different location due to TaaS constraints.
-    if destination == 'sge':
-        tool_memory = min(tool_memory, SGE_MAX_MEM)
-        tool_cores = min(tool_cores, SGE_MAX_CORES)
-    elif 'condor' in destination:
-        tool_memory = min(tool_memory, CONDOR_MAX_MEM)
-        tool_cores = min(tool_cores, CONDOR_MAX_CORES)
+    tool_memory = min(tool_memory, destination.MAX_MEM)
+    tool_cores = min(tool_cores, destination.MAX_CORES)
 
     kwargs = {
         # Higher numbers are lower priority, like `nice`.
@@ -109,42 +103,10 @@ def build_spec(tool_spec):
         params['nativeSpecification'] = params['nativeSpecification'].replace('\n', ' ').strip()
 
     # We have some destination specific kwargs. `nativeSpecExtra` and `tmp` are only defined for SGE
-    if destination == 'sge':
-        if 'cores' in tool_spec:
-            kwargs['PARALLELISATION'] = '-pe "pe*" %s' % tool_cores
-            # memory is defined per-core, and the input number is in gigabytes.
-            real_memory = int(1024 * tool_memory / tool_spec['cores'])
-            # Supply to kwargs with M for megabyte.
-            kwargs['MEMORY'] = '%sM' % real_memory
-            raw_allocation_details['mem'] = tool_memory
-            raw_allocation_details['cpu'] = tool_cores
-
-        if 'nativeSpecExtra' in tool_spec:
-            kwargs['NATIVE_SPEC_EXTRA'] = tool_spec['nativeSpecExtra']
-
-        # Large TMP dir
-        if tool_spec.get('tmp', None) == 'large':
-            kwargs['NATIVE_SPEC_EXTRA'] += '-l has_largetmp=1'
-
-        # Environment variables, SGE specific.
-        if 'env' in tool_spec and '_JAVA_OPTIONS' in tool_spec['env']:
-            params['nativeSpecification'] = params['nativeSpecification'].replace('-v _JAVA_OPTIONS', '')
-    elif 'condor' in destination:
-        if 'cores' in tool_spec:
-            kwargs['PARALLELISATION'] = tool_cores
-            raw_allocation_details['cpu'] = tool_cores
-        else:
-            pass
-            # del params['request_cpus']
-
-        if 'mem' in tool_spec:
-            raw_allocation_details['mem'] = tool_memory
-
-        if 'requirements' in tool_spec:
-            params['requirements'] = tool_spec['requirements']
-
-        if 'rank' in tool_spec:
-            params['rank'] = tool_spec['rank']
+    kw_update, raw_alloc_update, params_update = destination.custom_spec(tool_spec, params, kwargs, tool_memory, tool_cores)
+    kwargs.update(kw_update)
+    raw_allocation_details.update(raw_alloc_update)
+    params.update(params_update)
 
     # Update env and params from kwargs.
     env.update(tool_spec.get('env', {}))
@@ -152,238 +114,104 @@ def build_spec(tool_spec):
     params.update(tool_spec.get('params', {}))
     params = {k: str(v).format(**kwargs) for (k, v) in params.items()}
 
-    if destination == 'sge':
-        runner = 'drmaa'
-    elif 'condor' in destination:
-        runner = 'condor'
-    else:
-        runner = 'local'
-
     env = [dict(name=k, value=v) for (k, v) in env.items()]
-    return env, params, runner, raw_allocation_details
+    return env, params, raw_allocation_details
 
 
-def drmaa_is_available():
-    try:
-        os.stat('/usr/local/galaxy/temporarily-disable-drmaa')
-        return False
-    except OSError:
-        return True
+def enforce_authorization(tool_spec, user_email, user_roles):
+    if 'authorized_users' not in tool_spec:
+        return tool_spec
 
+    authorized_users = tool_spec['authorized_users']
+    if user_email not in authorized_users:
+        raise Exception("Unauthorized")
 
-def condor_is_available():
-    try:
-        os.stat('/usr/local/galaxy/temporarily-disable-condor')
-        return False
-    except OSError:
-        pass
-
-    try:
-        executors = subprocess.check_output(['condor_status'])
-        # No executors, assume offline.
-        if len(executors.strip()) == 0:
-            return False
-
-        return True
-    except subprocess.CalledProcessError:
-        return False
-    except FileNotFoundError:
-        # No condor binary
-        return False
-
-
-def get_training_machines(group='training'):
-    # IF more than 60 seconds out of date, refresh.
-    global TRAINING_MACHINES
-
-    # Define the group if it doesn't exist.
-    if group not in TRAINING_MACHINES:
-        TRAINING_MACHINES[group] = {
-            'updated': 0,
-            'machines': [],
-        }
-
-    if time.time() - TRAINING_MACHINES[group]['updated'] > STALE_CONDOR_HOST_INTERVAL:
-        # Fetch a list of machines
-        try:
-            machine_list = subprocess.check_output(['condor_status', '-long', '-attributes', 'Machine']).decode('utf8')
-        except subprocess.CalledProcessError:
-            machine_list = ''
-        except FileNotFoundError:
-            machine_list = ''
-
-        # Strip them
-        TRAINING_MACHINES[group]['machines'] = [
-            x[len("Machine = '"):-1]
-            for x in machine_list.strip().split('\n\n')
-            if '-' + group + '-' in x
-        ]
-        # And record that this has been updated recently.
-        TRAINING_MACHINES[group]['updated'] = time.time()
-    return TRAINING_MACHINES[group]['machines']
-
-
-def avoid_machines(permissible=None):
-    """
-    Obtain a list of the special training machines in the form that can be used
-    in a rank/requirement expression.
-
-    :param permissible: A list of training groups that are permissible to the user and shouldn't be included in the expression
-    :type permissible: list(str) or None
-
-    """
-    if permissible is None:
-        permissible = []
-    machines = set(get_training_machines())
-    # List of those to remove.
-    to_remove = set()
-    # Loop across permissible machines in order to remove them from the machine dict.
-    for allowed in permissible:
-        for m in machines:
-            if allowed in m:
-                to_remove = to_remove.union(set([m]))
-    # Now we update machine list with removals.
-    machines = machines.difference(to_remove)
-    # If we want to NOT use the machines, construct a list with `!=`
-    data = ['(machine != "%s")' % m for m in sorted(machines)]
-    if len(data):
-        return '( ' + ' && '.join(data) + ' )'
-    return ''
-
-
-def prefer_machines(training_identifiers, machine_group='training'):
-    """
-    Obtain a list of the specially tagged machines in the form that can be used
-    in a rank/requirement expression.
-
-    :param training_identifiers: A list of training groups that are permissible to the user and shouldn't be included in the expression
-    :type training_identifiers: list(str) or None
-    """
-    if training_identifiers is None:
-        training_identifiers = []
-
-    machines = set(get_training_machines(group=machine_group))
-    allowed = set()
-    for identifier in training_identifiers:
-        for m in machines:
-            if identifier in m:
-                allowed = allowed.union(set([m]))
-
-    # If we want to use the machines, construct a list with `==`
-    data = ['(machine == "%s")' % m for m in sorted(allowed)]
-    if len(data):
-        return '( ' + ' || '.join(data) + ' )'
-    return ''
-
-
-def reroute_to_dedicated(tool_spec, user_roles):
-    """
-    Re-route users to correct destinations. Some users will be part of a role
-    with dedicated training resources.
-    """
-    # Collect their possible training roles identifiers.
-    training_roles = [role[len('training-'):] for role in user_roles if role.startswith('training-')]
-
-    # No changes to specification.
-    if len(training_roles) == 0:
-        # However if it is running on condor, make sure that it doesn't run on the training machines.
-        if 'runner' in tool_spec and tool_spec['runner'] == 'condor':
-            # Require that the jobs do not run on these dedicated training machines.
-            return {'requirement': avoid_machines()}
-        # If it isn't running on condor, no changes.
-        return {}
-
-    # Otherwise, the user does have one or more training roles.
-    # So we must construct a requirement / ranking expression.
-    return {
-        # We require that it does not run on machines that the user is not in the role for.
-        'requirements': avoid_machines(permissible=training_roles),
-        # We then rank based on what they *do* have the roles for
-        'rank': prefer_machines(training_roles),
-        'runner': 'condor',
-    }
-
-
-def _finalize_tool_spec(tool_id, user_roles, memory_scale=1.0):
-    # Find the 'short' tool ID which is what is used in the .yaml file.
-    tool = get_tool_id(tool_id)
-    # Pull the tool specification (i.e. job destination configuration for this tool)
-    tool_spec = copy.deepcopy(TOOL_DESTINATIONS.get(tool, {}))
-    # Update the tool specification with any training resources that are available
-    tool_spec.update(reroute_to_dedicated(tool_spec, user_roles))
-
-    tool_spec['mem'] = tool_spec.get('mem', 4) * memory_scale
-
-    # Only two tools are truly special.
-    if tool_id == 'upload1':
-        tool_spec = {
-            'mem': 0.3,
-            'runner': 'condor',
-            'requirements': prefer_machines(['upload'], machine_group='upload'),
-            'env': {
-                'TEMP': '/data/1/galaxy_db/tmp/'
-            }
-        }
-    elif tool_id == '__SET_METADATA__':
-        tool_spec = {
-            'mem': 0.3,
-            'runner': 'condor',
-            'requirements': prefer_machines(['metadata'], machine_group='metadata')
-        }
+    del tool_spec['authorized_users']
     return tool_spec
 
 
-def convert_condor_to_sge(tool_spec):
-    # Send this to SGE
-    tool_spec['runner'] = 'sge'
-    # SGE does not support partials
-    tool_spec['mem'] = int(math.ceil(tool_spec['mem']))
-    return tool_spec
-
-
-def convert_sge_to_condor(tool_spec):
-    tool_spec['runner'] = 'condor'
-    return tool_spec
-
-
-def handle_downed_runners(tool_spec):
-    # In the event that it was going to condor and condor is unavailable, re-schedule to sge
-    avail_condor = condor_is_available()
-    avail_drmaa = drmaa_is_available()
+def handle_downed_runners(tool_spec, destination, runner_name):
+    """
+    In the event that it was going to condor and condor is unavailable,
+    re-schedule to sge
+    """
+    avail_condor = DEST_CONDOR.is_available()
+    avail_drmaa = DEST_DRMAA.is_available()
 
     if not avail_condor and not avail_drmaa:
         raise Exception("Both clusters are currently down")
 
-    if tool_spec.get('runner', 'local') == 'condor':
-        if avail_drmaa and not avail_condor:
-            tool_spec = convert_condor_to_sge(tool_spec)
+    if not avail_condor and avail_drmaa:
+        destination = DEST_DRMAA
+        tool_spec = destination.convert(tool_spec)
+        runner_name = 'drmaa'
+    if not avail_drmaa and avail_condor:
+        destination = DEST_CONDOR
+        tool_spec = destination.convert(tool_spec)
+        runner_name = 'condor'
 
-    elif tool_spec.get('runner', 'local') == 'sge':
-        if avail_condor and not avail_drmaa:
-            tool_spec = convert_condor_to_sge(tool_spec)
-
-    return tool_spec
+    return tool_spec, destination, runner_name
 
 
 def _gateway(tool_id, user_roles, user_email, memory_scale=1.0):
-    tool_spec = handle_downed_runners(_finalize_tool_spec(tool_id, user_roles, memory_scale=memory_scale))
+    # Find the 'short' tool ID which is what is used in the .yaml file.
+    tool = get_tool_id(tool_id)
+    # Pull the tool specification (i.e. job destination configuration for this tool)
+    tool_spec = copy.deepcopy(TOOL_DESTINATIONS['tools'].get(tool, {}))
 
-    # Send special users to condor temporarily.
+    # Get a reference to the destination
+    requested_destination_name = tool_spec.get('runner', 'sge')
+    if requested_destination_name == 'sge':
+        destination = DEST_DRMAA
+        runner_name = 'drmaa'
+    elif 'condor' in requested_destination_name:
+        destination = DEST_CONDOR
+        runner_name = 'condor'
+    else:
+        destination = DEST_LOCAL
+        runner_name = 'local'
+
+    # Only two tools are truly special.
+    if tool_id in ('upload1', '__SET_METADATA__'):
+        destination = DEST_CONDOR
+        runner_name = 'condor'
+
+        machine_group = 'upload' if tool_id == 'upload1' else 'metadata'
+        tool_spec = {
+            'mem': 0.3,
+            'runner': 'condor',
+            'rank': destination.prefer_machines([machine_group], machine_group=machine_group),
+            'env': {
+                'TEMP': '/data/1/galaxy_db/tmp/'
+            }
+        }
+
+    tool_spec, destination, runner_name = handle_downed_runners(tool_spec, destination, runner_name)
+
+    # Send special users to certain destinations temporarily.
     if 'gx-admin-force-jobs-to-condor' in user_roles:
-        tool_spec = convert_sge_to_condor(tool_spec)
-    if 'gx-admin-force-jobs-to-drmaa' in user_roles:
-        tool_spec = convert_condor_to_sge(tool_spec)
+        tool_spec = DEST_CONDOR.convert(tool_spec)
+    elif 'gx-admin-force-jobs-to-drmaa' in user_roles:
+        tool_spec = DEST_DRMAA.convert(tool_spec)
+    elif 'gx-admin-force-jobs-to-local' in user_roles:
+        tool_spec = DEST_LOCAL.convert(tool_spec)
 
-    if tool_id == 'echo_main_env':
-        if user_email != 'hxr@informatik.uni-freiburg.de':
-            raise Exception("Unauthorized")
-        else:
-            tool_spec = convert_sge_to_condor(tool_spec)
+    # Handle downed runners
+
+    # Update the tool specification with any training resources that are
+    # available. Won't change the runner, just applies restrictions within the
+    # runner.
+    tool_spec.update(destination.reroute_to_dedicated(tool_spec, user_roles))
+    # Increase memory, as necessary.
+    tool_spec['mem'] = tool_spec.get('mem', 4) * memory_scale
+
+    # Will raise exception if unacceptable
+    tool_spec = enforce_authorization(tool_spec, user_email, user_roles)
 
     # Now build the full spec
-    env, params, runner, _ = build_spec(tool_spec)
+    env, params, _ = finalize_spec(runner_name, destination, tool_spec)
 
-    return env, params, runner, tool_spec
+    return env, params, runner_name, tool_spec
 
 
 @backoff.on_exception(backoff.fibo,
@@ -446,24 +274,5 @@ def resubmit_gateway(tool_id, user):
     return job_destination
 
 
-def toXml(env, params, runner, spec):
-    name = name_it(spec)
-
-    print('        <destination id="%s" runner="%s">' % (name, runner))
-    for (k, v) in params.items():
-        print('            <param id="%s">%s</param>' % (k, v))
-    for k in env:
-        print('            <env id="%s">%s</env>' % (k['name'], k['value']))
-    print('        </destination>')
-    print("")
-
-
 if __name__ == '__main__':
-    seen_destinations = []
-    for tool in TOOL_DESTINATIONS:
-        if TOOL_DESTINATIONS[tool] not in seen_destinations:
-            seen_destinations.append(TOOL_DESTINATIONS[tool])
-
-    for spec in seen_destinations:
-        (env, params, runner, _) = build_spec(spec)
-        toXml(env, params, runner, spec)
+    pass
