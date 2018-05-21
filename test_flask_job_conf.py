@@ -91,6 +91,15 @@ Machine = "unrelated-02.novalocal"
     class CalledProcessError(Exception):
         pass
 
+    # python3
+    PIPE = None
+    STDOUT = None
+    STDERR = None
+    DEVNULL = None
+    @classmethod
+    def _args_from_interpreter_flags(cls, *args, **kwargs):
+        return
+
 sys.modules['subprocess'] = subprocess
 
 
@@ -106,17 +115,19 @@ class FlaskJobConfTestCase(unittest.TestCase):
         self.app = flask_job_conf.app.test_client()
 
     def test_no_params(self):
-        rv = self.app.get('/')
-        assert rv.data == b'{}\n', rv.data
+        rv = self.app.post('/')
+        assert rv.data == b'{"error":"missing content or content-type header"}\n', rv.data
 
     def test_upload_spec_drmaa(self):
         sys.modules['subprocess'].condor_is_alive = False
         payload = {
             'tool_id': 'upload1',
-            'user_roles': ['test']
+            'user_roles': ['test'],
+            'email': 'hxr@informatik.uni-freiburg.de',
         }
         rv = self.app.post('/', headers={'Content-type': 'application/json'}, data=json.dumps(payload))
         resp = json.loads(rv.data.decode())
+        print(resp)
         _compare(resp['params'], {'nativeSpecification': '-q galaxy1.q,all.q -p -128 -l galaxy1_slots=1 -l h_vmem=4G   -v _JAVA_OPTIONS -v TEMP -v TMPDIR -v PATH -v PYTHONPATH -v LD_LIBRARY_PATH -v XAPPLRESDIR -v GDFONTPATH -v GNUPLOT_DEFAULT_GDFONT -v MPLCONFIGDIR -soft -l galaxy1_dedicated=1'})
         _compare_val(resp['runner'], 'drmaa')
         _compare(resp['spec'], {'mem': 4, 'runner': 'sge', 'env': {'TEMP': '/data/1/galaxy_db/tmp/'}, 'requirements': '( (machine == "vgcnbwc-upload-01.novalocal") )'})
@@ -126,7 +137,8 @@ class FlaskJobConfTestCase(unittest.TestCase):
 
         payload = {
             'tool_id': 'upload1',
-            'user_roles': ['test', 'v']
+            'user_roles': ['test', 'v'],
+            'email': 'hxr@informatik.uni-freiburg.de',
         }
         rv = self.app.post('/', headers={'Content-type': 'application/json'}, data=json.dumps(payload))
         resp = json.loads(rv.data.decode())

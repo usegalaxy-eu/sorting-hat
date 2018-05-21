@@ -10,3 +10,6 @@ query:
 		-H 'Content-type: application/json' \
 		-d '{"tool_id": "asdf", "user_roles": [], "email": "hxr@local.host"}' \
 	localhost:5000
+
+test:
+	JCAAS_CONF=config/main.yml python test_flask_job_conf.py
