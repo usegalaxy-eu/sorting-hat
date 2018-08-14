@@ -50,7 +50,7 @@ class Condor(Destination):
             return True
         except subprocess.CalledProcessError:
             return False
-        except FileNotFoundError:
+        except Exception:
             # No condor binary
             return False
 
@@ -73,7 +73,7 @@ class Condor(Destination):
                                                         'Machine']).decode('utf-8')
             except subprocess.CalledProcessError:
                 machine_list = ''
-            except FileNotFoundError:
+            except Exception:
                 machine_list = ''
 
             # Strip them
