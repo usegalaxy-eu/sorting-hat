@@ -29,6 +29,7 @@ if os.path.exists(CONFIG_PATH):
         sentry = Sentry(app, dsn=APP_CONFIG['sentry_dsn'])
 
     if 'statsd' in APP_CONFIG:
+
         app.config['STATS_HOSTNAME'] = APP_CONFIG['statsd']['host']
         app.config['STATS_PORT'] = APP_CONFIG['statsd']['port']
         app.config['STATS_BASE_KEY'] = APP_CONFIG['statsd']['prefix']

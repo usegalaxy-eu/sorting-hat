@@ -35,6 +35,14 @@ destinations:
       docker_default_container_id: busybox:ubuntu-14.04
       docker_sudo: false
 
+  slurm:
+    env: {}
+    params:
+      nativeSpecification: |
+          h_vmem={MEMORY}
+          {NATIVE_SPEC_EXTRA}
+          {PARALLELISATION}
+
   sge:
     env: {}
     params:

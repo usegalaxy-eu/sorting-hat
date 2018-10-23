@@ -77,8 +77,9 @@ def name_it(tool_spec):
 def build_spec(tool_spec):
     destination = tool_spec.get('runner', 'sge')
 
-    env = dict(SPECIFICATIONS.get(destination, {'env': {}})['env'])
-    params = dict(SPECIFICATIONS.get(destination, {'params': {}})['params'])
+    env = dict(SPECIFICATIONS['destinations'].get(destination, {'env': {}})['env'])
+    params = dict(SPECIFICATIONS['destinations'].get(destination, {'params': {}})['params'])
+    print(destination, SPECIFICATIONS['destinations'].keys())
     # A dictionary that stores the "raw" details that went into the template.
     raw_allocation_details = {}
 
@@ -145,7 +146,6 @@ def build_spec(tool_spec):
 
         if 'rank' in tool_spec:
             params['rank'] = tool_spec['rank']
-
     # Update env and params from kwargs.
     env.update(tool_spec.get('env', {}))
     env = {k: str(v).format(**kwargs) for (k, v) in env.items()}
@@ -164,6 +164,7 @@ def build_spec(tool_spec):
 
 
 def drmaa_is_available():
+    return True
     try:
         os.stat('/usr/local/galaxy/temporarily-disable-drmaa')
         return False
@@ -172,6 +173,7 @@ def drmaa_is_available():
 
 
 def condor_is_available():
+    return True
     try:
         os.stat('/usr/local/galaxy/temporarily-disable-condor')
         return False
