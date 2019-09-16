@@ -171,12 +171,8 @@ def build_spec(tool_spec, runner_hint=None):
         runner = 'drmaa'
     elif 'condor' in destination:
         runner = 'condor'
-    elif destination == 'remote_cluster_mq':
-        runner = 'pulsar_eu_cz'
-    elif destination == 'remote_cluster_mq_cz':
-        runner = 'pulsar_eu_cz'
-    elif destination == 'remote_cluster_mq_test':
-        runner = 'pulsar_eu_test'
+    elif 'remote_cluster_mq' in destination:
+        runner = destination.replace('remote_cluster_mq', 'pulsar_eu')
     else:
         runner = 'local'
 
@@ -191,6 +187,8 @@ def reroute_to_dedicated(tool_spec, user_roles):
     """
     # Collect their possible training roles identifiers.
     training_roles = [role for role in user_roles if role.startswith('training-')]
+    if any([role.startswith('training-gcc-') for role in training_roles]):
+        training_roles.append('training-gcc')
 
     # No changes to specification.
     if len(training_roles) == 0:
@@ -205,7 +203,6 @@ def reroute_to_dedicated(tool_spec, user_roles):
         'requirements': '(GalaxyGroup == "compute") || (%s)' % training_expr,
         # We then rank based on what they *do* have the roles for
         'rank': training_expr,
-        'runner': 'condor',
     }
 
 
@@ -220,7 +217,7 @@ def _finalize_tool_spec(tool_id, user_roles, memory_scale=1.0):
     tool_spec['mem'] = tool_spec.get('mem', 4) * memory_scale
 
     # Only two tools are truly special.
-    if tool_id == 'upload1':
+    if tool_id in ('upload1', '__DATA_FETCH__'):
         tool_spec = {
             'mem': 0.3,
             'runner': 'condor',
@@ -237,6 +234,10 @@ def _finalize_tool_spec(tool_id, user_roles, memory_scale=1.0):
             'rank': 'GalaxyGroup == "metadata"',
             'requirements': 'GalaxyTraining == false',
         }
+    # These we're running on a specific subset
+    #elif 'interactive_tool_' in tool_id:
+    #    tool_spec['requirements'] = 'GalaxyCluster == "backofen"'
+
     return tool_spec
 
 
@@ -256,8 +257,10 @@ def _gateway(tool_id, user_roles, user_id, user_email, memory_scale=1.0):
     # Now build the full spec
     runner_hint = None
 
-    if tool_id != 'upload1' and 'destination-pulsar-cz' in user_roles:
-        runner_hint = 'remote_cluster_mq_cz'
+    if tool_id != 'upload1':
+        hints = [x for x in user_roles if x.startswith('destination-')]
+        if len(hints) > 0:
+            runner_hint = hints[0].replace('destination-pulsar-', 'remote_cluster_mq_')
 
     # Ensure that this tool is permitted to run, otherwise, throw an exception.
     assert_permissions(tool_spec, user_email, user_roles)
@@ -265,6 +268,10 @@ def _gateway(tool_id, user_roles, user_id, user_email, memory_scale=1.0):
     env, params, runner, _ = build_spec(tool_spec, runner_hint=runner_hint)
     params['accounting_group_user'] = str(user_id)
     params['description'] = get_tool_id(tool_id)
+
+    # This is a special case, we're requiring it for faster feedback / turnaround times.
+    if 'training-hard-limits' in user_roles:
+        params['requirements'] = 'GalaxyGroup  ==  "training-hard-limits"'
 
     return env, params, runner, tool_spec
 

@@ -1,11 +1,35 @@
 ---
 __default__: {}
 
-scpipe: {mem: 12, cores: 8}
-cardinal_combine: {mem: 12}
+keras_batch_models:
+   runner: remote_cluster_mq_de03
+   cores: 8
+   env:
+      CUDA_VISIBLE_DEVICES: 0
+sklearn_train_test_eval:
+   runner: remote_cluster_mq_de03
+   cores: 8
+   env:
+      CUDA_VISIBLE_DEVICES: 0
+
+interactive_tool_jupyter_notebook: {mem: 4, runner: condor_docker}
+interactive_tool_ethercalc: {mem: 4, runner: condor_docker}
+interactive_tool_pinch: {mem: 4, runner: condor_docker}
+interactive_tool_neo4j: {mem: 4, runner: condor_docker}
+interactive_tool_hicbrowser: {mem: 4, runner: condor_docker}
+interactive_tool_cellxgene: {mem: 4, runner: condor_docker}
+interactive_tool_bam_iobio: {mem: 4, runner: condor_docker}
+interactive_tool_askomics: {mem: 4, runner: condor_docker}
+
+# roary	needs many many cpus if	the number of input files increase
+# a more specific function would ne neat
+roary: {cores: 24}
+maxquant: {mem: 20, cores: 8}
+scpipe: {mem: 64, cores: 8}
+cardinal_combine: {mem: 92}
 cardinal_classification: {mem: 128}
-cardinal_filtering: {mem: 80}
-cardinal_mz_images: {mem: 128}
+cardinal_filtering: {mem: 30}
+cardinal_mz_images: {mem: 20}
 cardinal_preprocessing: {mem: 110}
 cardinal_quality_report: {mem: 120}
 cardinal_segmentations: {mem: 92}
@@ -14,13 +38,27 @@ cardinal_data_exporter: {mem: 64}
 kraken_database_builder: {mem: 200}
 heatmap: {mem: 12}
 Heatmap: {mem: 12}
+msconvert: {runner: condor_docker}
+RNAlien: {cores: 12}
+slamdunk: {cores: 12}
+tombo_resquiggle: {cores: 12, mem: 32}
+pilon:
+  mem: 18
+  env:
+    _JAVA_OPTIONS: -Xmx18G -Xms1G
 
 cuffmerge: {mem: 8}
-
 bio3d_pca: {mem: 64}
 bio3d_rmsd: {mem: 64}
 bio3d_rmsf: {mem: 64}
 
+docking: {runner: remote_cluster_mq_it01}
+# prepare_ligands_for_docking: {runner: remote_cluster_mq_it01}
+prepare_box: {runner: remote_cluster_mq_it01}
+
+cds_essential_variability:
+  env:
+    COPERNICUS_CDSAPIRC_KEY_FILE: /data/db/data_managers/COPERNICUS_CDSAPIRC_KEY_FILE
 
 kraken: {mem: 128}
 
@@ -37,6 +75,7 @@ nanopolish_eventalign: {cores: 20, mem: 12}
 AccurateMassSearch: {cores: 4, mem: 8}
 AdditiveSeries: {cores: 20, mem: 12}
 AdditiveSeries: {cores: 4, mem: 8}
+augustus: {runner: remote_cluster_mq_be01}
 BaselineFilter: {cores: 4, mem: 8}
 CONVERTER_bedgraph_to_bigwig: {mem: 8}
 CVInspector: {cores: 4, mem: 8}
@@ -86,6 +125,15 @@ InclusionExclusionListCreator: {cores: 4, mem: 8}
 InternalCalibration: {cores: 4, mem: 8}
 IsobaricAnalyzer: {cores: 4, mem: 8}
 LabeledEval: {cores: 4, mem: 8}
+maker: {cores: 8, mem: 8, runner: remote_cluster_mq_be01}
+gmx_md: {runner: remote_cluster_mq_de02}
+gmx_merge_topology_files: {runner: remote_cluster_mq_de02}
+gmx_em: {runner: remote_cluster_mq_de02}
+gmx_nvt: {runner: remote_cluster_mq_de02}
+gmx_npt: {runner: remote_cluster_mq_de02}
+gmx_setup: {runner: remote_cluster_mq_de02}
+gmx_solvate: {runner: remote_cluster_mq_de02}
+mdanalysis_hbonds: {runner: remote_cluster_mq_de02}
 MRMMapper: {cores: 4, mem: 8}
 MRMPairFinder: {cores: 4, mem: 8}
 msgfplus:
@@ -335,7 +383,7 @@ blockbuster: {mem: 64}
 blockclust: {mem: 10}
 bowtie2: {cores: 8, mem: 20}
 bwa: {cores: 8, mem: 20}
-bwa_mem: {cores: 8, mem: 60}
+bwa_mem: {cores: 8, mem: 30}
 bwa_mem_index_builder_data_manager: {mem: 48}
 bwameth_index_builder_data_manager: {mem: 48}
 bwameth: {cores: 8, mem: 24}
@@ -345,7 +393,7 @@ mass_spectrometry_imaging_preprocessing: {mem: 110}
 mass_spectrometry_imaging_ion_images: {mem: 20}
 mass_spectrometry_imaging_qc: {mem: 110}
 mass_spectrometry_imaging_filtering: {mem: 20}
-metaspades: {cores: 10, mem: 110}
+metaspades: {cores: 10, mem: 250}
 megahit: {cores: 10, mem: 110}
 charts: {mem: 10}
 circgraph: {mem: 10}
@@ -457,6 +505,8 @@ gemini_load: {cores: 12, mem: 40}
 
 ggplot2_heatmap2: {mem: 24}
 graphprot_predict_profile: {mem: 8}
+# this tool was developed by IGC Bioinformatics Unit and Daniel Sobral from ELIXIR-PT
+goenrichment: {runner: remote_cluster_mq_pt01}
 hammock_1.0:
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx15G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
@@ -464,13 +514,13 @@ hammock_1.0:
   name: java_temp
 heatmapper: {mem: 25}
 heatmapper_deepTools: {mem: 25}
-hicexplorer_hicbuildmatrix: {cores: 10, mem: 90}
+hicexplorer_hicbuildmatrix: {cores: 10, mem: 120}
 hicexplorer_hiccorrectmatrix: {mem: 64}
 hicexplorer_hiccorrelate: {mem: 20}
 hicexplorer_hicfindtads: {mem: 20}
 hicexplorer_hicplotmatrix: {mem: 210}
 hicexplorer_hicplottads: {mem: 20}
-hicexplorer_hicsummatrices: {mem: 48}
+hicexplorer_hicsummatrices: {mem: 65}
 hicexplorer_hicpca: {cores: 12, mem: 60}
 hicexplorer_hicmergematrixbins: {mem: 80}
 hicexplorer_hictransform: {cores: 12, mem: 60}
@@ -484,9 +534,14 @@ hisat2: {cores: 8, mem: 20, runner: condor_singularity_with_conda}
 hisat2_index_builder_data_manager: {cores: 12, mem: 180}
 hmmer_hmmsearch: {mem: 10}
 htseq_count: {mem: 32}
-humann2: {mem: 8}
+humann2: {cores: 6, mem: 90}
 infernal_cmbuild: {cores: 10, mem: 20}
-interproscan: {cores: 12, mem: 40}
+infernal_cmsearch: {cores: 10, mem: 20}
+interproscan:
+  env:
+    PATH: $PATH:/data/0/interproscan/interproscan-5.36-75.0/
+  mem: 40
+  cores: 6
 iqtree: {cores: 12}
 iterative_map_pipeline: {mem: 60}
 je_clip: {cores: 8}
@@ -494,9 +549,8 @@ je_demultiplex: {cores: 8, mem: 20}
 je_demultiplex_illu: {cores: 8}
 je_markdupes: {cores: 8}
 join1: {mem: 18}
-#bamFilter:  {runner: remote_cluster_mq_cz}
-
-#jq: {runner: remote_cluster_mq_cz}
+bamFilter:  {runner: remote_cluster_mq_de01}
+jq: {runner: remote_cluster_mq_pt01}
 kallisto_quant: {cores: 8, mem: 20}
 ## uha,	with the reference.fa file from	the history it is not working?
 ## kallisto_quant: {cores: 8, mem: 20_singularity}
@@ -515,6 +569,7 @@ methtools_calling: {cores: 12, mem: 40}
 methtools_filter: {mem: 10}
 methtools_plot: {cores: 12, mem: 20}
 metilene: {cores: 12, mem: 20}
+mimodd_varcall: {cores: 6}
 minced: {mem: 10}
 migmap:
   env:
@@ -606,7 +661,8 @@ rgEstLibComp: {mem: 12}
 rgPicFixMate: {mem: 12}
 rgPicardMarkDups: {mem: 12}
 rm_spurious_events.py: {mem: 4}
-rna_star: {cores: 12, mem: 100}
+rna_star: {cores: 12, mem: 140}
+rna_starsolo: {cores: 4, mem: 40}
 rna_star_index_builder_data_manager:
   cores: 12
   mem: 100
@@ -621,6 +677,7 @@ sam_merge2:
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx15G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
   mem: 32
+samtools_stats: {runner: remote_cluster_mq_de01}
 search_gui:
   cores: 12
   env:
@@ -632,9 +689,9 @@ segemehl: {mem: 80}
 seq_filter_by_mapping: {mem: 8}
 shovill:
   cores: 4
-  mem: 20
+  mem: 50
   env:
-    SHOVILL_RAM: 20
+    SHOVILL_RAM: 50
 show_2D_image_reshape:
   env:
     HOME: /data/2/galaxy_db/tmp
@@ -654,12 +711,13 @@ show_3D_surface_plot:
   name: matlab
   nativeSpecExtra: -l lic_matlab=1
 signalp3: {mem: 10}
-sklearn_searchcv: {cores: 4, mem: 16}
+sklearn_searchcv: {cores: 12, mem: 16}
 smooth_running_window: {mem: 32}
 snippy: {mem: 12}
 snpEff: {mem: 12}
 snpEff_databases: {mem: 12}
 snpEff_download: {mem: 12}
+snpEff_get_chr_names: {mem: 12}
 snpEff_build_gb:
   mem: 48
   env:
@@ -669,7 +727,7 @@ snpSift_caseControl: {mem: 12}
 snpSift_filter: {mem: 18}
 snpSift_geneSets: {mem: 12}
 snpSift_int: {mem: 12}
-spades: {cores: 12, mem: 180}
+spades: {cores: 12, mem: 512}
 sshmm: {mem: 16}
 structurefold: {mem: 12}
 rnaspades: {cores: 12, mem: 90}
@@ -703,10 +761,11 @@ unicycler:
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx6G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp -Duser.home=/data/2/galaxy_db/tmp
     TERM: vt100
-  mem: 180
+  mem: 80
   name: special
-varscan_somatic: {mem: 12}
-varscan_mplieup: {mem: 12}
+valet: {cores: 8, mem: 20}
+varscan_somatic: {cores: 8, mem: 12}
+varscan_mpileup: {mem: 12}
 varscan_copynumber: {mem: 12}
 velvetg:
   cores: 4
@@ -732,6 +791,19 @@ echo_main_env:
         allow:
             roles:
                 - admin
+
+#tp_awk_tool:
+#    runner: condor_docker
+#    permissions:
+#        allow:
+#            roles:
+#                - admin
+
+#tp_replace_in_column:
+#    permissions:
+#        allow:
+#            roles:
+#                - admin
 
 # permissions testing.
 _test_permissions_0: {}
