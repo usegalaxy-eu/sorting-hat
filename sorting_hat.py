@@ -15,11 +15,11 @@ CONDOR_MAX_MEM = 1000
 # The default / base specification for the different environments.
 SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'destination_specifications.yaml')
 with open(SPECIFICATION_PATH, 'r') as handle:
-    SPECIFICATIONS = yaml.load(handle)
+    SPECIFICATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
 
 TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tool_destinations.yaml')
 with open(TOOL_DESTINATION_PATH, 'r') as handle:
-    TOOL_DESTINATIONS = yaml.load(handle)
+    TOOL_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
 
 
 def assert_permissions(tool_spec, user_email, user_roles):
