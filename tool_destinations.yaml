@@ -1,25 +1,31 @@
 ---
 __default__: {}
 
-keras_batch_models:
-   runner: remote_cluster_mq_de03
-   cores: 8
-   env:
-      CUDA_VISIBLE_DEVICES: 0
-sklearn_train_test_eval:
-   runner: remote_cluster_mq_de03
-   cores: 8
-   env:
-      CUDA_VISIBLE_DEVICES: 0
+#keras_batch_models:
+#   runner: remote_cluster_mq_de03
+#   cores: 8
+#   env:
+#      CUDA_VISIBLE_DEVICES: 0
+#sklearn_train_test_eval:
+#   runner: remote_cluster_mq_de03
+#   cores: 8
+#   env:
+#      CUDA_VISIBLE_DEVICES: 0
 
-interactive_tool_jupyter_notebook: {mem: 4, runner: condor_docker}
+# These are interactive and get restricted volumes
+interactive_tool_jupyter_notebook: {mem: 4, runner: condor_docker_interactive}
+interactive_tool_rstudio: {mem: 8, cpu: 1, runner: condor_docker_interactive}
+# These are not
 interactive_tool_ethercalc: {mem: 4, runner: condor_docker}
-interactive_tool_pinch: {mem: 4, runner: condor_docker}
+interactive_tool_phinch: {mem: 4, runner: condor_docker}
 interactive_tool_neo4j: {mem: 4, runner: condor_docker}
 interactive_tool_hicbrowser: {mem: 4, runner: condor_docker}
 interactive_tool_cellxgene: {mem: 4, runner: condor_docker}
 interactive_tool_bam_iobio: {mem: 4, runner: condor_docker}
 interactive_tool_askomics: {mem: 4, runner: condor_docker}
+interactive_tool_wilson: {mem: 4, runner: condor_docker}
+interactive_tool_wallace: {mem: 4, runner: condor_docker}
+interactive_tool_paraview: {mem: 4, runner: condor_docker}
 
 # roary	needs many many cpus if	the number of input files increase
 # a more specific function would ne neat
@@ -52,9 +58,9 @@ bio3d_pca: {mem: 64}
 bio3d_rmsd: {mem: 64}
 bio3d_rmsf: {mem: 64}
 
-docking: {runner: remote_cluster_mq_it01}
+# docking: {runner: remote_cluster_mq_uk01}
 # prepare_ligands_for_docking: {runner: remote_cluster_mq_it01}
-prepare_box: {runner: remote_cluster_mq_it01}
+# prepare_box: {runner: remote_cluster_mq_uk01}
 
 cds_essential_variability:
   env:
@@ -75,7 +81,7 @@ nanopolish_eventalign: {cores: 20, mem: 12}
 AccurateMassSearch: {cores: 4, mem: 8}
 AdditiveSeries: {cores: 20, mem: 12}
 AdditiveSeries: {cores: 4, mem: 8}
-augustus: {runner: remote_cluster_mq_be01}
+# augustus: {runner: remote_cluster_mq_be01}
 BaselineFilter: {cores: 4, mem: 8}
 CONVERTER_bedgraph_to_bigwig: {mem: 8}
 CVInspector: {cores: 4, mem: 8}
@@ -125,15 +131,15 @@ InclusionExclusionListCreator: {cores: 4, mem: 8}
 InternalCalibration: {cores: 4, mem: 8}
 IsobaricAnalyzer: {cores: 4, mem: 8}
 LabeledEval: {cores: 4, mem: 8}
-maker: {cores: 8, mem: 8, runner: remote_cluster_mq_be01}
-gmx_md: {runner: remote_cluster_mq_de02}
-gmx_merge_topology_files: {runner: remote_cluster_mq_de02}
-gmx_em: {runner: remote_cluster_mq_de02}
-gmx_nvt: {runner: remote_cluster_mq_de02}
-gmx_npt: {runner: remote_cluster_mq_de02}
-gmx_setup: {runner: remote_cluster_mq_de02}
-gmx_solvate: {runner: remote_cluster_mq_de02}
-mdanalysis_hbonds: {runner: remote_cluster_mq_de02}
+# maker: {cores: 8, mem: 8, runner: remote_cluster_mq_be01}
+# gmx_md: {runner: remote_cluster_mq_de02}
+# gmx_merge_topology_files: {runner: remote_cluster_mq_de02}
+# gmx_em: {runner: remote_cluster_mq_de02}
+# gmx_nvt: {runner: remote_cluster_mq_de02}
+# gmx_npt: {runner: remote_cluster_mq_de02}
+# gmx_setup: {runner: remote_cluster_mq_de02}
+# gmx_solvate: {runner: remote_cluster_mq_de02}
+# mdanalysis_hbonds: {runner: remote_cluster_mq_de02}
 MRMMapper: {cores: 4, mem: 8}
 MRMPairFinder: {cores: 4, mem: 8}
 msgfplus:
@@ -166,8 +172,8 @@ MassTraceExtractor: {cores: 4, mem: 8}
 MyriMatchAdapter: {cores: 4, mem: 8}
 MzTabExporter: {cores: 4, mem: 8}
 QCCalculator: {mem: 8}
+OpenSwathWorkflow: {mem: 156}
 mira_assembler: {mem: 24}
-
 mothur_align_check: {cores: 8, env: {TERM: vt100}}
 mothur_align_seqs: {cores: 8, env: {TERM: vt100}}
 mothur_amova: {cores: 8, env: {TERM: vt100}}
@@ -353,6 +359,10 @@ racon: {cores: 4, mem: 24}
 abims_xcms_fillPeaks: {mem: 32}
 abims_xcms_retcor: {mem: 32}
 abims_CAMERA_annotateDiffreport: {mem: 32}
+anndata_export: {cores: 4}
+anndata_import: {cores: 4}
+anndata_inspect: {cores: 4}
+anndata_manipulate: {cores: 4}
 antismash:
   cores: 12
   mem: 120
@@ -394,12 +404,13 @@ mass_spectrometry_imaging_ion_images: {mem: 20}
 mass_spectrometry_imaging_qc: {mem: 110}
 mass_spectrometry_imaging_filtering: {mem: 20}
 metaspades: {cores: 10, mem: 250}
-megahit: {cores: 10, mem: 110}
+megahit: {cores: 10, mem: 48}
 charts: {mem: 10}
 circgraph: {mem: 10}
 computeMatrix: {mem: 80}
 correctGCBias: {mem: 10}
 cshl_fastx_collapser: {mem: 16}
+create_tool_recommendation_model: {cores: 16, mem: 160}
 crispr_recognition_tool: {mem: 10}
 ctb_np-likeness-calculator: {mem: 12}
 ctb_online_data_fetch: {mem: 10}
@@ -466,7 +477,7 @@ flexbar: {cores: 12, mem: 12}
 flexbar_no_split: {cores: 12, mem: 12}
 flexbar_split_RR_bcs: {cores: 12, mem: 12}
 flexbar_split_RYYR_bcs: {cores: 12, mem: 12}
-freebayes: {cores: 12, mem: 12}
+freebayes: {cores: 12, mem: 120}
 gatk2_base_recalibrator:
   cores: 12
   env:
@@ -504,9 +515,10 @@ gemini_load: {cores: 12, mem: 40}
 #                - admin
 
 ggplot2_heatmap2: {mem: 24}
+glassgo: {mem: 4, runner: condor_docker}
 graphprot_predict_profile: {mem: 8}
 # this tool was developed by IGC Bioinformatics Unit and Daniel Sobral from ELIXIR-PT
-goenrichment: {runner: remote_cluster_mq_pt01}
+# goenrichment: {runner: remote_cluster_mq_pt01}
 hammock_1.0:
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx15G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
@@ -528,8 +540,8 @@ hicexplorer_hicplotviewpoint: {mem: 12}
 hicexplorer_hicaggregatecontacts: {mem: 12}
 hicup_mapper: {cores: 6, mem: 24}
 hisat: {cores: 12, mem: 20}
-hisat2: {cores: 8, mem: 20, runner: condor_singularity_with_conda}
-#hisat2: {cores: 8, mem: 20}
+#hisat2: {cores: 8, mem: 20, runner: condor_singularity_with_conda}
+hisat2: {cores: 8, mem: 20}
 
 hisat2_index_builder_data_manager: {cores: 12, mem: 180}
 hmmer_hmmsearch: {mem: 10}
@@ -549,7 +561,6 @@ je_demultiplex: {cores: 8, mem: 20}
 je_demultiplex_illu: {cores: 8}
 je_markdupes: {cores: 8}
 join1: {mem: 18}
-bamFilter:  {runner: remote_cluster_mq_de01}
 jq: {runner: remote_cluster_mq_pt01}
 kallisto_quant: {cores: 8, mem: 20}
 ## uha,	with the reference.fa file from	the history it is not working?
@@ -673,11 +684,77 @@ rsem_calculate_expression: {mem: 16}
 rseqc_bam2wig: {cores: 8, mem: 16}
 sailfish: {cores: 6, mem: 70}
 salmon: {cores: 6, mem: 70}
+scanpy_cluster_reduce_dimension:
+  cores: 4
+  env:
+    NUMBA_CACHE_DIR: /data/2/galaxy_db/tmp
+    OMP_NUM_THREADS: 4
+    OPENBLAS_NUM_THREADS: 4
+    MKL_NUM_THREADS: 4
+    VECLIB_MAXIMUM_THREADS: 4
+    NUMEXPR_NUM_THREADS: 4
+    NUMBA_NUM_THREADS: 4
+
+scanpy_filter:
+  cores: 4
+  env:
+    NUMBA_CACHE_DIR: /data/2/galaxy_db/tmp
+    OMP_NUM_THREADS: 4
+    OPENBLAS_NUM_THREADS: 4
+    MKL_NUM_THREADS: 4
+    VECLIB_MAXIMUM_THREADS: 4
+    NUMEXPR_NUM_THREADS: 4
+    NUMBA_NUM_THREADS: 4
+
+scanpy_inspect:
+  cores: 4
+  env:
+    NUMBA_CACHE_DIR: /data/2/galaxy_db/tmp
+    OMP_NUM_THREADS: 4
+    OPENBLAS_NUM_THREADS: 4
+    MKL_NUM_THREADS: 4
+    VECLIB_MAXIMUM_THREADS: 4
+    NUMEXPR_NUM_THREADS: 4
+    NUMBA_NUM_THREADS: 4
+
+scanpy_normalize:
+  cores: 4
+  env:
+    NUMBA_CACHE_DIR: /data/2/galaxy_db/tmp
+    OMP_NUM_THREADS: 4
+    OPENBLAS_NUM_THREADS: 4
+    MKL_NUM_THREADS: 4
+    VECLIB_MAXIMUM_THREADS: 4
+    NUMEXPR_NUM_THREADS: 4
+    NUMBA_NUM_THREADS: 4
+
+scanpy_remove_confounders:
+  cores: 4
+  env:
+    NUMBA_CACHE_DIR: /data/2/galaxy_db/tmp
+    OMP_NUM_THREADS: 4
+    OPENBLAS_NUM_THREADS: 4
+    MKL_NUM_THREADS: 4
+    VECLIB_MAXIMUM_THREADS: 4
+    NUMEXPR_NUM_THREADS: 4
+    NUMBA_NUM_THREADS: 4
+
+scanpy_plot:
+  cores: 4
+  env:
+    NUMBA_CACHE_DIR: /data/2/galaxy_db/tmp
+    OMP_NUM_THREADS: 4
+    OPENBLAS_NUM_THREADS: 4
+    MKL_NUM_THREADS: 4
+    VECLIB_MAXIMUM_THREADS: 4
+    NUMEXPR_NUM_THREADS: 4
+    NUMBA_NUM_THREADS: 4
+
 sam_merge2:
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx15G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
   mem: 32
-samtools_stats: {runner: remote_cluster_mq_de01}
+# samtools_stats: {runner: remote_cluster_mq_de01}
 search_gui:
   cores: 12
   env:
@@ -727,7 +804,7 @@ snpSift_caseControl: {mem: 12}
 snpSift_filter: {mem: 18}
 snpSift_geneSets: {mem: 12}
 snpSift_int: {mem: 12}
-spades: {cores: 12, mem: 512}
+spades: {cores: 12, mem: 128}
 sshmm: {mem: 16}
 structurefold: {mem: 12}
 rnaspades: {cores: 12, mem: 90}
