@@ -1,8 +1,7 @@
 import unittest
 
 from sorting_hat import _gateway, DEFAULT_DESTINATION
-from galaxy.jobs import JobDestination
-from galaxy.jobs.mapper import JobMappingException
+
 
 class TestSpecialTools(unittest.TestCase):
 
