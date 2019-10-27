@@ -21,6 +21,8 @@ TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__))
 with open(TOOL_DESTINATION_PATH, 'r') as handle:
     TOOL_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
 
+DEFAULT_DESTINATION = 'condor'
+
 
 def assert_permissions(tool_spec, user_email, user_roles):
     """
@@ -109,21 +111,23 @@ def name_it(tool_spec):
     return name
 
 
-def _get_limits(destination, default_cores=1, default_mem=4, default_gpus=0):
+def _get_limits(destination, dest_spec=SPECIFICATIONS, default_cores=1, default_mem=4, default_gpus=0):
     limits = {'cores': default_cores, 'mem': default_mem, 'gpus': default_gpus}
-    limits.update(SPECIFICATIONS.get(destination).get('limits', {}))
+    limits.update(dest_spec.get(destination).get('limits', {}))
     return limits
 
 
-def build_spec(tool_spec, runner_hint=None):
-    destination = tool_spec.get('runner', 'condor')
-
+def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
+    destination = tool_spec.get('runner')
+    if destination not in dest_spec:
+        destination = DEFAULT_DESTINATION
+    # print(destination)
     # TODO: REMOVE. Temporary hack, should be safe to remove now
     if runner_hint is not None:
         destination = runner_hint
 
-    env = dict(SPECIFICATIONS.get(destination, {'env': {}})['env'])
-    params = dict(SPECIFICATIONS.get(destination, {'params': {}})['params'])
+    env = dict(dest_spec.get(destination, {'env': {}})['env'])
+    params = dict(dest_spec.get(destination, {'params': {}})['params'])
     # A dictionary that stores the "raw" details that went into the template.
     raw_allocation_details = {}
 
@@ -137,23 +141,18 @@ def build_spec(tool_spec, runner_hint=None):
     # produce unschedulable jobs, requesting more ram/cpu than is available in a
     # given location. Currently we clamp those values rather than intelligently
     # re-scheduling to a different location due to TaaS constraints.
-    limits = _get_limits(destination)
-    if 'condor' in destination:
-        tool_memory = min(tool_memory, limits.get('mem'))
-        tool_cores = min(tool_cores, limits.get('cores'))
-
-    if 'remote_cluster_mq' in destination:
-        tool_memory = min(tool_memory, limits.get('mem'))
-        tool_cores = min(tool_cores, limits.get('cores'))
-        tool_gpus = min(tool_gpus, limits.get('gpus'))
+    limits = _get_limits(destination, dest_spec=dest_spec)
+    tool_memory = min(tool_memory, limits.get('mem'))
+    tool_cores = min(tool_cores, limits.get('cores'))
+    tool_gpus = min(tool_gpus, limits.get('gpus'))
 
     kwargs = {
         # Higher numbers are lower priority, like `nice`.
         'PRIORITY': tool_spec.get('priority', 128),
         'MEMORY': str(tool_memory) + 'G',
-        'PARALLELISATION': "",
+        'PARALLELISATION': tool_cores,
         'NATIVE_SPEC_EXTRA': "",
-        'GPUS': "",
+        'GPUS': tool_gpus,
     }
     # Allow more human-friendly specification
     if 'nativeSpecification' in params:
@@ -230,11 +229,11 @@ def reroute_to_dedicated(tool_spec, user_roles):
     }
 
 
-def _finalize_tool_spec(tool_id, user_roles, memory_scale=1.0):
+def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memory_scale=1.0):
     # Find the 'short' tool ID which is what is used in the .yaml file.
     tool = get_tool_id(tool_id)
     # Pull the tool specification (i.e. job destination configuration for this tool)
-    tool_spec = copy.deepcopy(TOOL_DESTINATIONS.get(tool, {}))
+    tool_spec = copy.deepcopy(tools_spec.get(tool, {}))
     # Update the tool specification with any training resources that are available
     tool_spec.update(reroute_to_dedicated(tool_spec, user_roles))
 
