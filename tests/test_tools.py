@@ -35,7 +35,10 @@ class TestSpecialTools(unittest.TestCase):
 
             env, params, runner, tool_spec = _gateway(tool_id, '', '', '')
 
-            self.assertEqual(env, result['env'])
+            d1 = {n['name']: n['value'] for n in env}
+            d2 = {n['name']: n['value'] for n in result['env']}
+            for k, v in d1.items():
+                self.assertEqual(d1[k], d2[k])
             self.assertEqual(params, result['params'])
             self.assertEqual(runner, result['runner'])
             self.assertEqual(tool_spec, result['tool_spec'])

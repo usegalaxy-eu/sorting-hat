@@ -28,7 +28,10 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
-        self.assertEqual(env, result)
+        d1 = {n['name']: n['value'] for n in env}
+        d2 = {n['name']: n['value'] for n in result}
+        for k, v in d1.items():
+            self.assertEqual(d1[k], d2[k])
 
     def test_pass_two_env_plus_runner(self):
         """
@@ -66,7 +69,10 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
-        self.assertEqual(env, result)
+        d1 = {n['name']: n['value'] for n in env}
+        d2 = {n['name']: n['value'] for n in result}
+        for k, v in d1.items():
+            self.assertEqual(d1[k], d2[k])
 
     def test_pass_two_env_plus_one_identical_from_runner(self):
         """
@@ -106,7 +112,10 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
-        self.assertEqual(env, result)
+        d1 = {n['name']: n['value'] for n in env}
+        d2 = {n['name']: n['value'] for n in result}
+        for k, v in d1.items():
+            self.assertEqual(d1[k], d2[k])
 
     def test_pass_three_env(self):
         """
@@ -142,14 +151,16 @@ class TestBuildSpecEnv(unittest.TestCase):
         SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
 
         result = [{'name': 'name3', 'value': 'value3'}, {'name': 'name1', 'value': 'value1'}, {'name': 'name2', 'value': 'value2'}]
-        len_result = 3
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
-        self.assertEqual(len(env), len_result)
-        self.assertEqual(env, result)
+        self.assertEqual(len(env), len(result))
+        d1 = {n['name']: n['value'] for n in env}
+        d2 = {n['name']: n['value'] for n in result}
+        for k, v in d1.items():
+            self.assertEqual(d1[k], d2[k])
 
 
 if __name__ == '__main__':
