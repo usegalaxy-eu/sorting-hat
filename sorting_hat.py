@@ -15,11 +15,13 @@ CONDOR_MAX_MEM = 1000
 # The default / base specification for the different environments.
 SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'destination_specifications.yaml')
 with open(SPECIFICATION_PATH, 'r') as handle:
-    SPECIFICATIONS = yaml.load(handle)
+    SPECIFICATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
 
 TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tool_destinations.yaml')
 with open(TOOL_DESTINATION_PATH, 'r') as handle:
-    TOOL_DESTINATIONS = yaml.load(handle)
+    TOOL_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
+
+DEFAULT_DESTINATION = 'condor'
 
 
 def assert_permissions(tool_spec, user_email, user_roles):
@@ -109,15 +111,23 @@ def name_it(tool_spec):
     return name
 
 
-def build_spec(tool_spec, runner_hint=None):
-    destination = tool_spec.get('runner', 'condor')
+def _get_limits(destination, dest_spec=SPECIFICATIONS, default_cores=1, default_mem=4, default_gpus=0):
+    limits = {'cores': default_cores, 'mem': default_mem, 'gpus': default_gpus}
+    limits.update(dest_spec.get(destination).get('limits', {}))
+    return limits
 
+
+def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
+    destination = tool_spec.get('runner')
+    if destination not in dest_spec:
+        destination = DEFAULT_DESTINATION
+    # print(destination)
     # TODO: REMOVE. Temporary hack, should be safe to remove now
     if runner_hint is not None:
         destination = runner_hint
 
-    env = dict(SPECIFICATIONS.get(destination, {'env': {}})['env'])
-    params = dict(SPECIFICATIONS.get(destination, {'params': {}})['params'])
+    env = dict(dest_spec.get(destination, {'env': {}})['env'])
+    params = dict(dest_spec.get(destination, {'params': {}})['params'])
     # A dictionary that stores the "raw" details that went into the template.
     raw_allocation_details = {}
 
@@ -125,20 +135,24 @@ def build_spec(tool_spec, runner_hint=None):
     # semi-internal, and may not be properly propagated to the end tool
     tool_memory = tool_spec.get('mem', 4)
     tool_cores = tool_spec.get('cores', 1)
+    tool_gpus = tool_spec.get('gpus', 0)
+
     # We apply some constraints to these values, to ensure that we do not
     # produce unschedulable jobs, requesting more ram/cpu than is available in a
     # given location. Currently we clamp those values rather than intelligently
     # re-scheduling to a different location due to TaaS constraints.
-    if 'condor' in destination:
-        tool_memory = min(tool_memory, CONDOR_MAX_MEM)
-        tool_cores = min(tool_cores, CONDOR_MAX_CORES)
+    limits = _get_limits(destination, dest_spec=dest_spec)
+    tool_memory = min(tool_memory, limits.get('mem'))
+    tool_cores = min(tool_cores, limits.get('cores'))
+    tool_gpus = min(tool_gpus, limits.get('gpus'))
 
     kwargs = {
         # Higher numbers are lower priority, like `nice`.
         'PRIORITY': tool_spec.get('priority', 128),
         'MEMORY': str(tool_memory) + 'G',
-        'PARALLELISATION': "",
+        'PARALLELISATION': tool_cores,
         'NATIVE_SPEC_EXTRA': "",
+        'GPUS': tool_gpus,
     }
     # Allow more human-friendly specification
     if 'nativeSpecification' in params:
@@ -160,6 +174,15 @@ def build_spec(tool_spec, runner_hint=None):
 
         if 'rank' in tool_spec:
             params['rank'] = tool_spec['rank']
+
+    if 'remote_cluster_mq' in destination:
+        if 'cores' in tool_spec:
+            kwargs['PARALLELISATION'] = tool_cores
+        else:
+            del params['submit_submit_request_cpus']
+
+        if 'gpus' in tool_spec and tool_gpus > 0:
+            kwargs['GPUS'] = tool_gpus
 
     # Update env and params from kwargs.
     env.update(tool_spec.get('env', {}))
@@ -206,11 +229,11 @@ def reroute_to_dedicated(tool_spec, user_roles):
     }
 
 
-def _finalize_tool_spec(tool_id, user_roles, memory_scale=1.0):
+def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memory_scale=1.0):
     # Find the 'short' tool ID which is what is used in the .yaml file.
     tool = get_tool_id(tool_id)
     # Pull the tool specification (i.e. job destination configuration for this tool)
-    tool_spec = copy.deepcopy(TOOL_DESTINATIONS.get(tool, {}))
+    tool_spec = copy.deepcopy(tools_spec.get(tool, {}))
     # Update the tool specification with any training resources that are available
     tool_spec.update(reroute_to_dedicated(tool_spec, user_roles))
 
@@ -235,8 +258,8 @@ def _finalize_tool_spec(tool_id, user_roles, memory_scale=1.0):
             'requirements': 'GalaxyTraining == false',
         }
     # These we're running on a specific subset
-    #elif 'interactive_tool_' in tool_id:
-    #    tool_spec['requirements'] = 'GalaxyCluster == "backofen"'
+    elif 'interactive_tool_' in tool_id:
+        tool_spec['requirements'] = 'GalaxyDockerHack == True'
 
     return tool_spec
 
