@@ -122,23 +122,14 @@ sge:
         -soft
         -l galaxy1_dedicated=1
 
-remote_cluster_mq_it01:
-  limits:
-    cores: 16
-    mem: 31
-  env: {}
-  params:
-    priority: -{PRIORITY}
-    submit_submit_request_cpus: '{PARALLELISATION}'
-    submit_submit_request_memory: '{MEMORY}'
-    jobs_directory: '/data/share/staging'
-    dependency_resolution: 'remote'
-
 remote_cluster_mq_be01:
   limits:
     cores: 8
     mem: 15
-  env: {}
+  env:
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
   params:
     priority: -{PRIORITY}
     submit_submit_request_cpus: '{PARALLELISATION}'
@@ -150,7 +141,11 @@ remote_cluster_mq_de01:
   limits:
     cores: 16
     mem: 31
-  env: {}
+  env:
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
+    SINGULARITY_CACHEDIR: /data/share/var/database/container_cache
   params:
     priority: -{PRIORITY}
     submit_submit_request_cpus: '{PARALLELISATION}'
@@ -163,7 +158,10 @@ remote_cluster_mq_de02:
   limits:
     cores: 16
     mem: 31
-  env: {}
+  env:
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
   params:
     priority: -{PRIORITY}
     submit_submit_request_cpus: '{PARALLELISATION}'
@@ -179,7 +177,10 @@ remote_cluster_mq_de03:
     cores: 8
     mem: 19
     gpu: 1
-  env: {}
+  env:
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
   params:
     priority: -{PRIORITY}
     submit_submit_request_cpus: '{PARALLELISATION}'
@@ -188,11 +189,29 @@ remote_cluster_mq_de03:
     jobs_directory: '/data/share/staging'
     dependency_resolution: 'remote'
 
+remote_cluster_mq_it01:
+  limits:
+    cores: 16
+    mem: 31
+  env:
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
+  params:
+    priority: -{PRIORITY}
+    submit_submit_request_cpus: '{PARALLELISATION}'
+    submit_submit_request_memory: '{MEMORY}'
+    jobs_directory: '/data/share/staging'
+    dependency_resolution: 'remote'
+
 remote_cluster_mq_pt01:
   limits:
     cores: 4
     mem: 15
-  env: {}
+  env:
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
   params:
     priority: -{PRIORITY}
     submit_submit_request_cpus: '{PARALLELISATION}'
@@ -204,7 +223,10 @@ remote_cluster_mq_uk01:
   limits:
     cores: 60
     mem: 300
-  env: {}
+  env:
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
   params:
     priority: -{PRIORITY}
     submit_submit_request_cpus: '{PARALLELISATION}'
