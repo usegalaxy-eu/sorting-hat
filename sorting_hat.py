@@ -121,7 +121,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     destination = tool_spec.get('runner')
     if destination not in dest_spec:
         destination = DEFAULT_DESTINATION
-    # print(destination)
+
     # TODO: REMOVE. Temporary hack, should be safe to remove now
     if runner_hint is not None:
         destination = runner_hint
@@ -160,12 +160,14 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
         params['nativeSpecification'] = params['nativeSpecification'].replace('\n', ' ').strip()
 
     # We have some destination specific kwargs. `nativeSpecExtra` and `tmp` are only defined for SGE
-    if 'condor' in destination:
+    if destination.startswith('condor'):
         if 'cores' in tool_spec:
             kwargs['PARALLELISATION'] = tool_cores
             raw_allocation_details['cpu'] = tool_cores
         else:
-            del params['request_cpus']
+            key = 'request_cpus'
+            if key in params:
+                del params[key]
 
         if 'mem' in tool_spec:
             raw_allocation_details['mem'] = tool_memory
@@ -176,15 +178,6 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
         if 'rank' in tool_spec:
             params['rank'] = tool_spec['rank']
 
-    if 'remote_cluster_mq' in destination:
-        if 'cores' in tool_spec:
-            kwargs['PARALLELISATION'] = tool_cores
-        else:
-            del params['submit_submit_request_cpus']
-
-        if 'gpus' in tool_spec and tool_gpus > 0:
-            kwargs['GPUS'] = tool_gpus
-
     # Update env and params from kwargs.
     env.update(tool_spec.get('env', {}))
     env = {k: str(v).format(**kwargs) for (k, v) in env.items()}
@@ -193,9 +186,11 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
 
     if destination == 'sge':
         runner = 'drmaa'
-    elif 'condor' in destination:
+    elif destination.startswith('condor'):
         runner = 'condor'
-    elif 'remote_cluster_mq' in destination:
+    elif destination.startswith('remote_cluster_mq_au'):
+        runner = destination.replace('remote_cluster_mq_au', 'pulsar_au_au')
+    elif destination.startswith('remote_cluster_mq'):
         runner = destination.replace('remote_cluster_mq', 'pulsar_eu')
     else:
         runner = 'local'
