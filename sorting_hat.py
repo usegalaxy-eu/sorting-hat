@@ -23,6 +23,11 @@ with open(TOOL_DESTINATION_PATH, 'r') as handle:
 
 DEFAULT_DESTINATION = 'condor'
 
+TOOL_DESTINATION_ALLOWED_KEYS = ['cores', 'env', 'gpus', 'mem', 'name', 'nativeSpecExtra',
+                                 'params', 'permissions', 'runner', 'tmp']
+
+SPECIFICATION_ALLOWED_KEYS = ['env', 'limits', 'params']
+
 
 def assert_permissions(tool_spec, user_email, user_roles):
     """
