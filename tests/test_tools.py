@@ -33,7 +33,7 @@ class TestSpecialTools(unittest.TestCase):
                               'mem': 4.0}
                 }
 
-            env, params, runner, tool_spec = _gateway(tool_id, '', '', '')
+            env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
 
             d1 = {n['name']: n['value'] for n in env}
             d2 = {n['name']: n['value'] for n in result['env']}

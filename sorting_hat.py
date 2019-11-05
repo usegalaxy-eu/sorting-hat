@@ -24,9 +24,9 @@ with open(TOOL_DESTINATION_PATH, 'r') as handle:
 DEFAULT_DESTINATION = 'condor'
 
 TOOL_DESTINATION_ALLOWED_KEYS = ['cores', 'env', 'gpus', 'mem', 'name', 'nativeSpecExtra',
-                                 'params', 'permissions', 'runner', 'tmp']
+                                 'params', 'permissions', 'runner', 'tags', 'tmp']
 
-SPECIFICATION_ALLOWED_KEYS = ['env', 'limits', 'params']
+SPECIFICATION_ALLOWED_KEYS = ['env', 'limits', 'params', 'tags']
 
 
 def assert_permissions(tool_spec, user_email, user_roles):
@@ -126,13 +126,15 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     destination = tool_spec.get('runner')
     if destination not in dest_spec:
         destination = DEFAULT_DESTINATION
-    # print(destination)
+
     # TODO: REMOVE. Temporary hack, should be safe to remove now
     if runner_hint is not None:
         destination = runner_hint
 
     env = dict(dest_spec.get(destination, {'env': {}})['env'])
     params = dict(dest_spec.get(destination, {'params': {}})['params'])
+    tags = {dest_spec.get(destination).get('tags', None)}
+
     # A dictionary that stores the "raw" details that went into the template.
     raw_allocation_details = {}
 
@@ -195,6 +197,10 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     params.update(tool_spec.get('params', {}))
     params = {k: str(v).format(**kwargs) for (k, v) in params.items()}
 
+    tags.add(tool_spec.get('tags', None))
+    tags.discard(None)
+    tags = ','.join([x for x in tags if x is not None]) if len(tags) > 0 else None
+
     if destination == 'sge':
         runner = 'drmaa'
     elif 'condor' in destination:
@@ -205,7 +211,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
         runner = 'local'
 
     env = [dict(name=k, value=v) for (k, v) in env.items()]
-    return env, params, runner, raw_allocation_details
+    return env, params, runner, raw_allocation_details, tags
 
 
 def reroute_to_dedicated(tool_spec, user_roles):
@@ -293,7 +299,7 @@ def _gateway(tool_id, user_roles, user_id, user_email, memory_scale=1.0):
     # Ensure that this tool is permitted to run, otherwise, throw an exception.
     assert_permissions(tool_spec, user_email, user_roles)
 
-    env, params, runner, _ = build_spec(tool_spec, runner_hint=runner_hint)
+    env, params, runner, _, tags = build_spec(tool_spec, runner_hint=runner_hint)
     params['accounting_group_user'] = str(user_id)
     params['description'] = get_tool_id(tool_id)
 
@@ -301,7 +307,7 @@ def _gateway(tool_id, user_roles, user_id, user_email, memory_scale=1.0):
     if 'training-hard-limits' in user_roles:
         params['requirements'] = 'GalaxyGroup  ==  "training-hard-limits"'
 
-    return env, params, runner, tool_spec
+    return env, params, runner, tool_spec, tags
 
 
 def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
@@ -316,7 +322,7 @@ def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
         user_id = -1
 
     try:
-        env, params, runner, spec = _gateway(tool_id, user_roles, user_id, email, memory_scale=memory_scale)
+        env, params, runner, spec, tags = _gateway(tool_id, user_roles, user_id, email, memory_scale=memory_scale)
     except Exception as e:
         return JobMappingException(str(e))
 
@@ -330,6 +336,7 @@ def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
     name = name_it(spec)
     return JobDestination(
         id=name,
+        tags=tags,
         runner=runner,
         params=params,
         env=env,

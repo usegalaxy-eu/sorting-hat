@@ -26,7 +26,7 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         d1 = {n['name']: n['value'] for n in env}
         d2 = {n['name']: n['value'] for n in result}
@@ -67,7 +67,7 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         d1 = {n['name']: n['value'] for n in env}
         d2 = {n['name']: n['value'] for n in result}
@@ -110,7 +110,7 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         d1 = {n['name']: n['value'] for n in env}
         d2 = {n['name']: n['value'] for n in result}
@@ -154,7 +154,7 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertEqual(len(env), len(result))
         d1 = {n['name']: n['value'] for n in env}

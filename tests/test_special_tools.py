@@ -21,7 +21,7 @@ class TestSpecialTools(unittest.TestCase):
             }
         tool_id = 'upload1'
 
-        env, params, runner, tool_spec = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
         self.assertEqual(env, result['env'])
         self.assertEqual(params, result['params'])
         self.assertEqual(runner, result['runner'])
@@ -43,7 +43,7 @@ class TestSpecialTools(unittest.TestCase):
         }
         tool_id = '__DATA_FETCH__'
 
-        env, params, runner, tool_spec = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
 
         self.assertEqual(env, result['env'])
         self.assertEqual(params, result['params'])
@@ -65,7 +65,7 @@ class TestSpecialTools(unittest.TestCase):
         }
         tool_id = '__SET_METADATA__'
 
-        env, params, runner, tool_spec = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
 
         self.assertEqual(env, result['env'])
         self.assertEqual(params, result['params'])

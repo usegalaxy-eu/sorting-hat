@@ -115,7 +115,7 @@ class TestLimits(unittest.TestCase):
         tool_id = '_unittest_tool'
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         for k, v in result.items():
             self.assertIn(k, params)
@@ -163,7 +163,7 @@ class TestLimits(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         for k, v in result.items():
             self.assertIn(k, params)
