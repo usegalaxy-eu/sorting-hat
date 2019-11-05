@@ -36,7 +36,7 @@ class TestYamlFile(unittest.TestCase):
         """
         for destination, value in SPECIFICATIONS.items():
             for k in value.keys():
-                self.assertTrue(k in SPECIFICATION_ALLOWED_KEYS)
+                self.assertTrue(k in SPECIFICATION_ALLOWED_KEYS, msg="{} in {} is not an allowed key".format(k, destination))
 
 
 if __name__ == '__main__':
