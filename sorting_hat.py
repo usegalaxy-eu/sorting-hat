@@ -24,7 +24,7 @@ with open(TOOL_DESTINATION_PATH, 'r') as handle:
 DEFAULT_DESTINATION = 'condor'
 
 TOOL_DESTINATION_ALLOWED_KEYS = ['cores', 'env', 'gpus', 'mem', 'name', 'nativeSpecExtra',
-                                 'params', 'permissions', 'runner', 'tags', 'tmp']
+                                 'params', 'permissions', 'runner', 'tags', 'tmp', 'destination_id']
 
 SPECIFICATION_ALLOWED_KEYS = ['env', 'limits', 'params', 'tags']
 
@@ -112,6 +112,10 @@ def name_it(tool_spec):
 
     if 'name' in tool_spec:
         name += '_' + tool_spec['name']
+
+    # Force a replacement of the destination's id
+    if 'destination_id' in tool_spec:
+        name = tool_spec['destination_id']
 
     return name
 
