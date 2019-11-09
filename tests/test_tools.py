@@ -30,7 +30,9 @@ class TestSpecialTools(unittest.TestCase):
                                       'VECLIB_MAXIMUM_THREADS': 4, 'NUMEXPR_NUM_THREADS': 4,
                                       'NUMBA_NUM_THREADS': 4},
                               'requirements': 'GalaxyGroup == "compute"',
-                              'mem': 4.0}
+                              'mem': 4.0,
+                              'force_destination_id': False,
+                              'runner': DEFAULT_DESTINATION}
                 }
 
             env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')

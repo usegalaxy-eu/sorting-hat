@@ -24,7 +24,7 @@ with open(TOOL_DESTINATION_PATH, 'r') as handle:
 DEFAULT_DESTINATION = 'condor'
 
 TOOL_DESTINATION_ALLOWED_KEYS = ['cores', 'env', 'gpus', 'mem', 'name', 'nativeSpecExtra',
-                                 'params', 'permissions', 'runner', 'tags', 'tmp', 'destination_id']
+                                 'params', 'permissions', 'runner', 'tags', 'tmp', 'force_destination_id']
 
 SPECIFICATION_ALLOWED_KEYS = ['env', 'limits', 'params', 'tags']
 
@@ -99,11 +99,11 @@ def get_tool_id(tool_id):
     return tool_id
 
 
-def name_it(tool_spec):
+def name_it(tool_spec, prefix='so_'):
     if 'cores' in tool_spec:
         name = '%scores_%sG' % (tool_spec.get('cores', 1), tool_spec.get('mem', 4))
     elif len(tool_spec.keys()) == 0 or (len(tool_spec.keys()) == 1 and 'runner' in tool_spec):
-        name = '%s_default' % tool_spec.get('runner', 'condor')
+        name = '%s_default' % tool_spec.get('runner')
     else:
         name = '%sG_memory' % tool_spec.get('mem', 4)
 
@@ -114,8 +114,8 @@ def name_it(tool_spec):
         name += '_' + tool_spec['name']
 
     # Force a replacement of the destination's id
-    if 'destination_id' in tool_spec:
-        name = tool_spec['destination_id']
+    if tool_spec['force_destination_id']:
+        name = prefix + tool_spec.get('runner')
 
     return name
 
@@ -253,6 +253,8 @@ def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memor
     tool_spec.update(reroute_to_dedicated(tool_spec, user_roles))
 
     tool_spec['mem'] = tool_spec.get('mem', 4) * memory_scale
+    tool_spec['force_destination_id'] = tool_spec.get('force_destination_id', False)
+    tool_spec['runner'] = tool_spec.get('runner', DEFAULT_DESTINATION)
 
     # Only two tools are truly special.
     if tool_id in ('upload1', '__DATA_FETCH__'):
