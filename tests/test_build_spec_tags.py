@@ -1,6 +1,6 @@
 import unittest
 
-from sorting_hat import build_spec, _finalize_tool_spec, SPECIFICATIONS, TOOL_DESTINATIONS
+from sorting_hat import _gateway, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
 class TestBuildSpecTags(unittest.TestCase):
@@ -32,9 +32,7 @@ class TestBuildSpecTags(unittest.TestCase):
         result = None
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
-
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
         self.assertEqual(tags, result)
 
     def test_get_tags_from_tool(self):
@@ -55,9 +53,7 @@ class TestBuildSpecTags(unittest.TestCase):
         result = _tool_tags
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
-
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
         self.assertEqual(tags, result)
 
     def test_get_tags_from_destination(self):
@@ -88,9 +84,7 @@ class TestBuildSpecTags(unittest.TestCase):
         result = _dest_tags
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
-
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
         self.assertEqual(tags, result)
 
     def test_get_tags_from_tool_and_destination(self):
@@ -122,8 +116,7 @@ class TestBuildSpecTags(unittest.TestCase):
 
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
 
         self.assertIn(_tool_tags, tags)
         self.assertIn(_dest_tags, tags)
