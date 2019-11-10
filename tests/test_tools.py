@@ -32,6 +32,7 @@ class TestSpecialTools(unittest.TestCase):
                               'requirements': 'GalaxyGroup == "compute"',
                               'mem': 4.0,
                               'force_destination_id': False,
+                              'gpus': 0,
                               'runner': DEFAULT_DESTINATION}
                 }
 

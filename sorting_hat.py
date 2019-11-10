@@ -22,6 +22,13 @@ with open(TOOL_DESTINATION_PATH, 'r') as handle:
     TOOL_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
 
 DEFAULT_DESTINATION = 'condor'
+DEFAULT_TOOL_SPEC = {
+    'cores': 1,
+    'mem': 4,
+    'gpus': 0,
+    'force_destination_id': False,
+    'runner': DEFAULT_DESTINATION
+}
 
 TOOL_DESTINATION_ALLOWED_KEYS = ['cores', 'env', 'gpus', 'mem', 'name', 'nativeSpecExtra',
                                  'params', 'permissions', 'runner', 'tags', 'tmp', 'force_destination_id']
@@ -252,9 +259,11 @@ def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memor
     # Update the tool specification with any training resources that are available
     tool_spec.update(reroute_to_dedicated(tool_spec, user_roles))
 
-    tool_spec['mem'] = tool_spec.get('mem', 4) * memory_scale
-    tool_spec['force_destination_id'] = tool_spec.get('force_destination_id', False)
-    tool_spec['runner'] = tool_spec.get('runner', DEFAULT_DESTINATION)
+    # Update the tool specification with default values if not specified
+    for s in DEFAULT_TOOL_SPEC:
+        tool_spec[s] = tool_spec.get(s, DEFAULT_TOOL_SPEC[s])
+
+    tool_spec['mem'] = tool_spec['mem'] * memory_scale
 
     # Only two tools are truly special.
     if tool_id in ('upload1', '__DATA_FETCH__'):
