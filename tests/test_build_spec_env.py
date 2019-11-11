@@ -28,8 +28,9 @@ class TestBuildSpecEnv(unittest.TestCase):
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
-        d1 = {n['name']: n['value'] for n in env}
+        d1 = {n['name']: n['value'] for n in env if n in ['name1', 'name2']}
         d2 = {n['name']: n['value'] for n in result}
+
         for k, v in d1.items():
             self.assertEqual(d1[k], d2[k])
 

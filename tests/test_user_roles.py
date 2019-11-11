@@ -1,6 +1,6 @@
 import unittest
 
-from sorting_hat import _gateway, build_spec, _finalize_tool_spec, SPECIFICATIONS, TOOL_DESTINATIONS
+from sorting_hat import _gateway, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
 class TestPulsarDestinationHint(unittest.TestCase):

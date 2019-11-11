@@ -1,6 +1,7 @@
 import unittest
 
-from sorting_hat import _finalize_tool_spec, name_it, DEFAULT_DESTINATION, SPECIFICATIONS, SPECIFICATION_PATH, TOOL_DESTINATIONS
+from sorting_hat import _finalize_tool_spec, name_it, DEFAULT_DESTINATION, \
+    SPECIFICATIONS, SPECIFICATION_PATH, TOOL_DESTINATIONS, FDID_PREFIX
 
 
 class TestDestinations(unittest.TestCase):
@@ -26,7 +27,7 @@ class TestDestinations(unittest.TestCase):
 
         TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
 
-        result = 'so_' + DEFAULT_DESTINATION
+        result = FDID_PREFIX + DEFAULT_DESTINATION
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
@@ -50,7 +51,7 @@ class TestDestinations(unittest.TestCase):
 
         TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
 
-        result = 'so_' + _dest_label
+        result = FDID_PREFIX + _dest_label
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)

@@ -1,6 +1,6 @@
 import unittest
 
-from sorting_hat import build_spec, _finalize_tool_spec, TOOL_DESTINATIONS, DEFAULT_TOOL_SPEC
+from sorting_hat import _finalize_tool_spec, TOOL_DESTINATIONS, DEFAULT_TOOL_SPEC
 
 
 class TestToolSpec(unittest.TestCase):

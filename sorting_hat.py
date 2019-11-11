@@ -35,6 +35,8 @@ TOOL_DESTINATION_ALLOWED_KEYS = ['cores', 'env', 'gpus', 'mem', 'name', 'nativeS
 
 SPECIFICATION_ALLOWED_KEYS = ['env', 'limits', 'params', 'tags']
 
+FDID_PREFIX = 'sh_fdid_'
+
 
 def assert_permissions(tool_spec, user_email, user_roles):
     """
@@ -106,7 +108,7 @@ def get_tool_id(tool_id):
     return tool_id
 
 
-def name_it(tool_spec, prefix='so_'):
+def name_it(tool_spec, prefix=FDID_PREFIX):
     if 'cores' in tool_spec:
         name = '%scores_%sG' % (tool_spec.get('cores', 1), tool_spec.get('mem', 4))
     elif len(tool_spec.keys()) == 0 or (len(tool_spec.keys()) == 1 and 'runner' in tool_spec):
