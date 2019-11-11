@@ -28,7 +28,7 @@ class TestBuildSpecRunner(unittest.TestCase):
         SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
 
         result = DEFAULT_DESTINATION
-        tool_id = '_unittest_tool'
+        tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
@@ -52,7 +52,7 @@ class TestBuildSpecRunner(unittest.TestCase):
                 'env': {},
                 'params':
                     {
-                        'submit_submit_request_cpus': '{PARALLELISATION}',
+                        'submit_request_cpus': '{PARALLELISATION}',
                         'request_memory': '{MEMORY}',
                         'request_gpus': '{GPUS}'
                     }
