@@ -19,8 +19,8 @@ class TestYamlFile(unittest.TestCase):
             if l[0] in ascii_letters:
                 cnt[l.split(':')[0]] += 1
 
-        k, v = cnt.most_common(5)[0]
-        self.assertEqual(1, v)
+        k, v = cnt.most_common(1)[0]
+        self.assertEqual(1, v, msg="Duplication found: {} is present {} times".format(k, v))
 
     def test_tool_destinations_keys(self):
         """
