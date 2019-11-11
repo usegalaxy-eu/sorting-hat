@@ -10,7 +10,7 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if no specifications
         """
         result = {
-            'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'}, {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
+            'env': [{'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
                        'accounting_group_user': '', 'description': 'upload1'},
@@ -32,7 +32,7 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if no specifications
         """
         result = {
-            'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'}, {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
+            'env': [{'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
                        'accounting_group_user': '', 'description': '__DATA_FETCH__'},
@@ -55,7 +55,7 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if no specifications
         """
         result = {
-            'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'}],
+            'env': [],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "metadata"',
                        'accounting_group_user': '', 'description': '__SET_METADATA__'},
