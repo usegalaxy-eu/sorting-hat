@@ -24,7 +24,7 @@ with open(TOOL_DESTINATION_PATH, 'r') as handle:
 DEFAULT_DESTINATION = 'condor'
 DEFAULT_TOOL_SPEC = {
     'cores': 1,
-    'mem': 4,
+    'mem': 4.0,
     'gpus': 0,
     'force_destination_id': False,
     'runner': DEFAULT_DESTINATION
@@ -134,13 +134,10 @@ def _get_limits(destination, dest_spec=SPECIFICATIONS, default_cores=1, default_
 
 
 def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
-    destination = tool_spec.get('runner')
+    destination = runner_hint if runner_hint else tool_spec.get('runner')
+
     if destination not in dest_spec:
         destination = DEFAULT_DESTINATION
-
-    # TODO: REMOVE. Temporary hack, should be safe to remove now
-    if runner_hint is not None:
-        destination = runner_hint
 
     env = dict(dest_spec.get(destination, {'env': {}})['env'])
     params = dict(dest_spec.get(destination, {'params': {}})['params'])
@@ -168,6 +165,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
         # Higher numbers are lower priority, like `nice`.
         'PRIORITY': tool_spec.get('priority', 128),
         'MEMORY': str(tool_memory) + 'G',
+        'MEMORY_MB': int(tool_memory * 1024),
         'PARALLELISATION': tool_cores,
         'NATIVE_SPEC_EXTRA': "",
         'GPUS': tool_gpus,
