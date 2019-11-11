@@ -3,26 +3,18 @@ import unittest
 from sorting_hat import _gateway, build_spec, _finalize_tool_spec, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
-class TestPulsarDestination(unittest.TestCase):
+class TestPulsarDestinationHint(unittest.TestCase):
 
     def test_destination_in_user_role(self):
         """
         Test if the runner hint works without runner in tool_spec
         """
         _tool_label = '_unittest_tool'
-        _dest_label = '_unittest_destination'
         _user_roles = ['destination-pulsar-de01']
 
         _tool_spec = {_tool_label:
             {
 
-            }
-        }
-
-        _dest_spec = {_dest_label:
-            {
-                'env': {},
-                'params': {}
             }
         }
 
