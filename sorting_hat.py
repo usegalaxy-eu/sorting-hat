@@ -123,7 +123,7 @@ def name_it(tool_spec, prefix=FDID_PREFIX):
         name += '_' + tool_spec['name']
 
     # Force a replacement of the destination's id
-    if tool_spec['force_destination_id']:
+    if tool_spec.get('force_destination_id', False):
         name = prefix + tool_spec.get('runner')
 
     return name
