@@ -27,8 +27,37 @@ class TestToolSpec(unittest.TestCase):
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
 
         for i in result:
+            if i in ['cores', 'gpus']:
+                self.assertIsInstance(tool_spec[i], int)
+            elif i == 'mem':
+                self.assertIsInstance(tool_spec[i], float)
+            elif i == 'force_destination_id':
+                self.assertIsInstance(tool_spec[i], bool)
+            elif i == 'runner':
+                self.assertIsInstance(tool_spec[i], str)
             self.assertEqual(tool_spec[i], result[i],
-                             msg="for {}, actual {} value ({}) is different form expected result ({}) ".format(tool_id,
-                                                                                                    i,
-                                                                                                    tool_spec[i],
-                                                                                                    result[i]))
+                             msg="for {}, actual {} value ({}) is different form expected "
+                                 "result ({}) ".format(tool_id, i, tool_spec[i], result[i]))
+
+    def test_default_keys(self):
+        """
+        Test default keys from TOOL_DESTINATIONS
+        """
+        for tool_id in TOOL_DESTINATIONS:
+            result = TOOL_DESTINATIONS[tool_id]
+
+            tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+
+            for i in result:
+                if i in ['cores', 'gpus']:
+                    self.assertIsInstance(tool_spec[i], int)
+                elif i == 'mem':
+                    self.assertIsInstance(tool_spec[i], float)
+                elif i == 'force_destination_id':
+                    self.assertIsInstance(tool_spec[i], bool)
+                    print(tool_spec[i])
+                elif i == 'runner':
+                    self.assertIsInstance(tool_spec[i], str)
+                self.assertEqual(tool_spec[i], result[i],
+                                 msg="for {}, actual {} value ({}) is different form expected "
+                                     "result ({}) ".format(tool_id, i, tool_spec[i], result[i]))
