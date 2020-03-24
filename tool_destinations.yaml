@@ -355,7 +355,9 @@ XMLValidator: {cores: 4, mem: 8}
 XTandemAdapter: {cores: 4, mem: 8}
 racon: {cores: 4, mem: 24}
 abims_xcms_fillPeaks: {mem: 32}
+xcms_plot_chromatogram: {mem: 16}
 abims_xcms_retcor: {mem: 32}
+abims_xcms_xcmsSet: {core: 2, mem: 8}
 abims_CAMERA_annotateDiffreport: {mem: 32}
 anndata_export: {cores: 4}
 anndata_import: {cores: 4}
@@ -400,6 +402,7 @@ mass_spectrometry_imaging_preprocessing: {mem: 110}
 mass_spectrometry_imaging_ion_images: {mem: 20}
 mass_spectrometry_imaging_qc: {mem: 110}
 mass_spectrometry_imaging_filtering: {mem: 20}
+msnbase_readmsdata: {mem: 8}
 metaspades: {cores: 10, mem: 250}
 megahit: {cores: 10, mem: 48}
 charts: {mem: 10}
