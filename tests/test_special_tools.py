@@ -10,7 +10,10 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if no specifications
         """
         result = {
-            'env': [{'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
+            'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'},
+                    {'name': 'GALAXY_MEMORY_MB', 'value': '307'}, 
+                    {'name': 'GALAXY_SLOTS', 'value': '1'},
+                    {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
                        'accounting_group_user': '', 'description': 'upload1'},
@@ -21,7 +24,7 @@ class TestSpecialTools(unittest.TestCase):
             }
         tool_id = 'upload1'
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
         self.assertEqual(env, result['env'])
         self.assertEqual(params, result['params'])
         self.assertEqual(runner, result['runner'])
@@ -32,7 +35,10 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if no specifications
         """
         result = {
-            'env': [{'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
+            'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'},
+                    {'name': 'GALAXY_MEMORY_MB', 'value': '307'}, 
+                    {'name': 'GALAXY_SLOTS', 'value': '1'},
+                    {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
                        'accounting_group_user': '', 'description': '__DATA_FETCH__'},
@@ -43,7 +49,7 @@ class TestSpecialTools(unittest.TestCase):
         }
         tool_id = '__DATA_FETCH__'
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
 
         self.assertEqual(env, result['env'])
         self.assertEqual(params, result['params'])
@@ -55,7 +61,9 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if no specifications
         """
         result = {
-            'env': [],
+            'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'},
+                    {'name': 'GALAXY_MEMORY_MB', 'value': '307'}, 
+                    {'name': 'GALAXY_SLOTS', 'value': '1'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "metadata"',
                        'accounting_group_user': '', 'description': '__SET_METADATA__'},
@@ -65,7 +73,7 @@ class TestSpecialTools(unittest.TestCase):
         }
         tool_id = '__SET_METADATA__'
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
 
         self.assertEqual(env, result['env'])
         self.assertEqual(params, result['params'])

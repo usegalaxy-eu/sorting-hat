@@ -59,9 +59,10 @@ class TestDestinations(unittest.TestCase):
 
         self.assertEqual(name, result)
 
+
     def test_force_destination_id_false(self):
         """
-        Test that it use the id from destination_id
+        Test
         """
         _tool_label = '_unittest_tool'
 
@@ -70,6 +71,25 @@ class TestDestinations(unittest.TestCase):
                 'force_destination_id': False
             }
 
+        }
+
+        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+
+        result = '1cores_4.0G'
+        tool_id = _tool_label
+
+        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        name = name_it(tool_spec)
+
+        self.assertEqual(name, result)
+
+    def test_force_destination_id_false(self):
+        """
+        Test
+        """
+        _tool_label = '_unittest_tool'
+
+        _tool_spec = {_tool_label: {}
         }
 
         TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]

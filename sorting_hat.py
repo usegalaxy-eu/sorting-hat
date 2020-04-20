@@ -179,7 +179,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     # We have some destination specific kwargs. `nativeSpecExtra` and `tmp` are only defined for SGE
     if 'condor' in destination:
         if 'cores' in tool_spec:
-            kwargs['PARALLELISATION'] = tool_cores
+            # kwargs['PARALLELISATION'] = tool_cores
             raw_allocation_details['cpu'] = tool_cores
         else:
             del params['request_cpus']
@@ -194,13 +194,8 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
             params['rank'] = tool_spec['rank']
 
     if 'remote_cluster_mq' in destination:
-        if 'cores' in tool_spec:
-            kwargs['PARALLELISATION'] = tool_cores
-        else:
-            del params['submit_submit_request_cpus']
-
-        if 'gpus' in tool_spec and tool_gpus > 0:
-            kwargs['GPUS'] = tool_gpus
+        if tool_gpus == 0 and 'submit_request_gpus' in params:
+            del params['submit_request_gpus']
 
     # Update env and params from kwargs.
     env.update(tool_spec.get('env', {}))
@@ -217,7 +212,9 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     elif 'condor' in destination:
         runner = 'condor'
     elif 'remote_cluster_mq' in destination:
-        runner = destination.replace('remote_cluster_mq', 'pulsar_eu')
+        # destination label has to follow this convention:
+        # remote_cluster_mq_feature1_feature2_feature3_pulsarid
+        runner = "_".join(['pulsar_eu', destination.split('_').pop()])
     else:
         runner = 'local'
 
@@ -263,7 +260,7 @@ def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memor
     for s in DEFAULT_TOOL_SPEC:
         tool_spec[s] = tool_spec.get(s, DEFAULT_TOOL_SPEC[s])
 
-    tool_spec['mem'] = tool_spec['mem'] * memory_scale
+    tool_spec['mem'] *= memory_scale
 
     # Only two tools are truly special.
     if tool_id in ('upload1', '__DATA_FETCH__'):
@@ -300,16 +297,20 @@ def convert_to(tool_spec, runner):
     return tool_spec
 
 
-def _gateway(tool_id, user_roles, user_id, user_email, memory_scale=1.0):
+def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, memory_scale=1.0):
     tool_spec = _finalize_tool_spec(tool_id, user_roles, memory_scale=memory_scale)
 
     # Now build the full spec
     runner_hint = None
 
-    if tool_id != 'upload1':
-        hints = [x for x in user_roles if x.startswith('destination-')]
-        if len(hints) > 0:
-            runner_hint = hints[0].replace('destination-pulsar-', 'remote_cluster_mq_')
+    if tool_id not in ('upload1', '__DATA_FETCH__', '__SET_METADATA__'):
+        # hints = [x for x in user_roles if x.startswith('destination-')]
+        # if len(hints) > 0:
+        #     runner_hint = hints[0].replace('destination-pulsar-', 'remote_cluster_mq_')
+        for data_item in user_preferences:
+            if "distributed_compute|remote_resources" in data_item:
+                if user_preferences[data_item] != "None":
+                    runner_hint = user_preferences[data_item]
 
     # Ensure that this tool is permitted to run, otherwise, throw an exception.
     assert_permissions(tool_spec, user_email, user_roles)
@@ -329,10 +330,12 @@ def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
     # And run it.
     if user:
         user_roles = [role.name for role in user.all_roles() if not role.deleted]
+        user_preferences = user.extra_preferences
         email = user.email
         user_id = user.id
     else:
         user_roles = []
+        user_preferences = []
         email = ''
         user_id = -1
 
@@ -341,7 +344,8 @@ def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
                                   "please contact a site administrator")
 
     try:
-        env, params, runner, spec, tags = _gateway(tool_id, user_roles, user_id, email, memory_scale=memory_scale)
+        env, params, runner, spec, tags = _gateway(tool_id, user_preferences, user_roles, user_id, email,
+                                                   memory_scale=memory_scale)
     except Exception as e:
         return JobMappingException(str(e))
 

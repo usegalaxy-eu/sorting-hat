@@ -62,7 +62,7 @@ class TestBuildSpecRunner(unittest.TestCase):
         TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
         SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
 
-        result = 'pulsar_eu_unittest_destination'
+        result = 'pulsar_eu_destination'
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)

@@ -32,7 +32,7 @@ class TestBuildSpecTags(unittest.TestCase):
         result = None
         tool_id = _tool_label
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
         self.assertEqual(tags, result)
 
     def test_get_tags_from_tool(self):
@@ -53,7 +53,7 @@ class TestBuildSpecTags(unittest.TestCase):
         result = _tool_tags
         tool_id = _tool_label
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
         self.assertEqual(tags, result)
 
     def test_get_tags_from_destination(self):
@@ -84,7 +84,7 @@ class TestBuildSpecTags(unittest.TestCase):
         result = _dest_tags
         tool_id = _tool_label
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
         self.assertEqual(tags, result)
 
     def test_get_tags_from_tool_and_destination(self):
@@ -116,7 +116,7 @@ class TestBuildSpecTags(unittest.TestCase):
 
         tool_id = _tool_label
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
 
         self.assertIn(_tool_tags, tags)
         self.assertIn(_dest_tags, tags)

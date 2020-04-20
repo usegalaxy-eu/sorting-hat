@@ -55,7 +55,6 @@ class TestToolSpec(unittest.TestCase):
                     self.assertIsInstance(tool_spec[i], float)
                 elif i == 'force_destination_id':
                     self.assertIsInstance(tool_spec[i], bool)
-                    print(tool_spec[i])
                 elif i == 'runner':
                     self.assertIsInstance(tool_spec[i], str)
                 self.assertEqual(tool_spec[i], result[i],

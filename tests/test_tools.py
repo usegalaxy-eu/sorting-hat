@@ -19,7 +19,9 @@ class TestSpecialTools(unittest.TestCase):
                         {'name': 'MKL_NUM_THREADS', 'value': '4'},
                         {'name': 'VECLIB_MAXIMUM_THREADS', 'value': '4'},
                         {'name': 'NUMEXPR_NUM_THREADS', 'value': '4'},
-                        {'name': 'NUMBA_NUM_THREADS', 'value': '4'}],
+                        {'name': 'NUMBA_NUM_THREADS', 'value': '4'},
+                        {'name': 'GALAXY_MEMORY_MB', 'value': '4096'},
+                        {'name': 'GALAXY_SLOTS', 'value': '4'}],
                 'params': {'priority': '-128', 'request_cpus': '4', 'request_memory': '4.0G',
                            'tmp_dir': 'True', 'requirements': 'GalaxyGroup == "compute"',
                            'accounting_group_user': '', 'description': tool_id},
@@ -36,7 +38,7 @@ class TestSpecialTools(unittest.TestCase):
                               'runner': DEFAULT_DESTINATION}
                 }
 
-            env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '')
+            env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
 
             d1 = {n['name']: n['value'] for n in env}
             d2 = {n['name']: n['value'] for n in result['env']}

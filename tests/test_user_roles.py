@@ -23,7 +23,7 @@ class TestPulsarDestinationHint(unittest.TestCase):
         result = _user_roles[0].replace('destination-pulsar-', 'pulsar_eu_')
         tool_id = _tool_label
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, _user_roles, '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', _user_roles, '', '')
         self.assertEqual(runner, result)
 
     def test_destination_in_user_rolewith_tool_runner(self):
@@ -53,5 +53,5 @@ class TestPulsarDestinationHint(unittest.TestCase):
         result = _user_roles[0].replace('destination-pulsar-', 'pulsar_eu_')
         tool_id = _tool_label
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, _user_roles, '', '')
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', _user_roles, '', '')
         self.assertEqual(runner, result)
