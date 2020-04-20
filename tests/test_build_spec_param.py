@@ -103,11 +103,41 @@ class TestBuildSpecParam(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, _, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
 
         self.assertEqual(params['request_memory'], result['params']['request_memory'])
 
+
+    def test_pass_docker_params(self):
+        """
+        Test if the tool's docker requirements are handled correctly
+        """
+        _tool_label = '_unittest_tool'
+        for dest in SPECIFICATIONS:
+            _tool_spec = {_tool_label: 
+                {
+                    'runner': dest,
+                    'docker_set_user' : 1000,
+                    'docker_run_extra_arguments': 'extra argument',
+                }   
+            }
+            TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+            result = {
+                'params': {
+                    'docker_set_user': '1000',
+                    'docker_run_extra_arguments': 'extra argument',
+                    },
+            }
+
+            tool_id = _tool_label
+            tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+            _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
         
+            if 'docker_enabled' in params and params['docker_enabled']:
+                for i in ['docker_set_user', 'docker_run_extra_arguments']:
+                    self.assertEqual(params[i], result['params'][i])
+
+
 if __name__ == '__main__':
     unittest.main()
