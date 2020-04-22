@@ -91,6 +91,41 @@ class TestBuildSpecRunner(unittest.TestCase):
 
         self.assertEqual(runner, result)
 
+    def test_runner_from_joint_destination(self):
+        """
+        Test runner retrieved from joint destinations
+        """
+        _tool_label = '_unittest_tool'
+        _dest_label = 'remote_condor_cluster_gpu_docker'
+
+        _tool_spec = {_tool_label:
+            {
+                'runner': _dest_label
+            }
+        }
+        _dest_spec = {_dest_label:
+            {
+                'env': {},
+                'params':
+                    {
+                        'submit_request_cpus': '{PARALLELISATION}',
+                        'request_memory': '{MEMORY}',
+                        'request_gpus': '{GPUS}'
+                    }
+            }
+        }
+
+        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+
+        result = ['pulsar_eu_de03', 'pulsar_eu_uk01']
+        tool_id = _tool_label
+
+        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        _, _, runner, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+
+        self.assertIn(runner, result)
+        
 
 if __name__ == '__main__':
     unittest.main()
