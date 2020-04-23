@@ -1,31 +1,79 @@
 ---
 __default__: {}
 
-#keras_batch_models:
-#   runner: remote_cluster_mq_de03
-#   cores: 8
-#   env:
-#      CUDA_VISIBLE_DEVICES: 0
-#sklearn_train_test_eval:
-#   runner: remote_cluster_mq_de03
-#   cores: 8
-#   env:
-#      CUDA_VISIBLE_DEVICES: 0
+keras_train_and_eval:
+   runner: remote_cluster_mq_de03
+   gpus: 1
+   cores: 10
+   env:
+      CUDA_VISIBLE_DEVICES: 0
+
+xchem_transfs_scoring:
+   runner: remote_cluster_mq_docker_de03
+   gpus: 1
+   cores: 1
+   env:
+      CUDA_VISIBLE_DEVICES: 0
+
+xchem_pose_scoring:
+   runner: remote_cluster_mq_docker_de03
+   gpus: 1
+   cores: 1
+   env:
+      CUDA_VISIBLE_DEVICES: 0
+
+openduck_run_smd:
+   runner: remote_cluster_mq_docker_de03
+   gpus: 1
+   cores: 1
+   env:
+      CUDA_VISIBLE_DEVICES: 0
+      OPENDUCK_GPU_PARAM: "--gpu-id 1"
+   docker_set_user: 1000
+   docker_run_extra_arguments: '-e "OPENDUCK_GPU_PARAM=$OPENDUCK_GPU_PARAM" --gpus all'
+
+sklearn_searchcv: {mem: 12, cores: 10}
+
+sklearn_model_validation: {mem: 12, cores: 10}
 
 # These are interactive and get restricted volumes
-interactive_tool_jupyter_notebook: {mem: 4, runner: condor_docker_ie_interactive}
-interactive_tool_rstudio: {mem: 8, cores: 1, runner: condor_docker_ie_interactive}
+interactive_tool_jupyter_notebook: {mem: 4, runner: condor_docker_ie_interactive, force_destination_id: True}
+interactive_tool_climate_notebook: {mem: 4, runner: condor_docker_ie_interactive, force_destination_id: True}
+interactive_tool_rstudio: {mem: 8, cores: 1, runner: condor_docker_ie_interactive, force_destination_id: True}
+interactive_tool_pyiron: {mem: 8, cores: 1, runner: condor_docker_ie_interactive, force_destination_id: True}
+interactive_tool_guacamole_desktop: {mem: 8, cores: 2, runner: condor_docker_ie_interactive, force_destination_id: True}
+interactive_tool_openrefine: {mem: 4, runner: condor_docker_ie_interactive, force_destination_id: True}
+interactive_tool_panoply: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+
 # These are not
-interactive_tool_ethercalc: {mem: 4, runner: condor_docker_ie}
-interactive_tool_phinch: {mem: 4, runner: condor_docker_ie}
-interactive_tool_neo4j: {mem: 4, runner: condor_docker_ie}
-interactive_tool_hicbrowser: {mem: 4, runner: condor_docker_ie}
-interactive_tool_cellxgene: {mem: 4, runner: condor_docker_ie}
-interactive_tool_bam_iobio: {mem: 4, runner: condor_docker_ie}
-interactive_tool_askomics: {mem: 4, runner: condor_docker_ie}
-interactive_tool_wilson: {mem: 4, runner: condor_docker_ie}
-interactive_tool_wallace: {mem: 4, runner: condor_docker_ie}
-interactive_tool_paraview: {mem: 4, runner: condor_docker_ie}
+interactive_tool_ethercalc: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_geoexplorer: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_radiant: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_higlass: {mem: 20, cores: 5, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_phinch: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_neo4j: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_hicbrowser: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_cellxgene: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_bam_iobio: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_vcf_iobio: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_askomics: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_wilson: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_wallace: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+interactive_tool_paraview: {mem: 4, runner: condor_docker_ie, force_destination_id: True}
+
+
+transdecoder: {cores: 8, mem: 8, runner: remote_cluster_mq_it01}
+zerone: {runner: remote_cluster_mq_it01}
+basil: {runner: remote_cluster_mq_it01}
+goenrichment: {runner: remote_cluster_mq_be01}
+circos: {mem: 10, runner: remote_cluster_mq_pt01}
+
+# docking: {runner: remote_cluster_mq_uk01}
+# prepare_ligands_for_docking: {runner: remote_cluster_mq_it01}
+# prepare_box: {runner: remote_cluster_mq_uk01}
+
+fasterq_dump: {cores: 8}
+
 
 # roary	needs many many cpus if	the number of input files increase
 # a more specific function would ne neat
@@ -34,33 +82,29 @@ maxquant: {mem: 20, cores: 8}
 scpipe: {mem: 64, cores: 8}
 cardinal_combine: {mem: 92}
 cardinal_classification: {mem: 128}
-cardinal_filtering: {mem: 30}
+cardinal_filtering: {mem: 60}
 cardinal_mz_images: {mem: 20}
 cardinal_preprocessing: {mem: 110}
-cardinal_quality_report: {mem: 120}
+cardinal_quality_report: {mem: 180}
 cardinal_segmentations: {mem: 92}
 cardinal_spectra_plots: {mem: 32}
-cardinal_data_exporter: {mem: 64}
+cardinal_data_exporter: {mem: 200}
 kraken_database_builder: {mem: 200}
 heatmap: {mem: 12}
 Heatmap: {mem: 12}
 msconvert: {runner: condor_docker}
-RNAlien: {cores: 12}
-slamdunk: {cores: 12}
-tombo_resquiggle: {cores: 12, mem: 32}
+RNAlien: {cores: 10}
+slamdunk: {cores: 10}
+tombo_resquiggle: {cores: 10, mem: 32}
 pilon:
-  mem: 18
+  mem: 32
   env:
-    _JAVA_OPTIONS: -Xmx18G -Xms1G
+    _JAVA_OPTIONS: -Xmx32G -Xms1G
 
 cuffmerge: {mem: 8}
 bio3d_pca: {mem: 64}
 bio3d_rmsd: {mem: 64}
 bio3d_rmsf: {mem: 64}
-
-# docking: {runner: remote_cluster_mq_uk01}
-# prepare_ligands_for_docking: {runner: remote_cluster_mq_it01}
-# prepare_box: {runner: remote_cluster_mq_uk01}
 
 cds_essential_variability:
   env:
@@ -129,7 +173,11 @@ InclusionExclusionListCreator: {cores: 4, mem: 8}
 InternalCalibration: {cores: 4, mem: 8}
 IsobaricAnalyzer: {cores: 4, mem: 8}
 LabeledEval: {cores: 4, mem: 8}
-# maker: {cores: 8, mem: 8, runner: remote_cluster_mq_be01}
+#maker: {cores: 8, mem: 8, runner: remote_cluster_mq_fr01}
+gmx_sim: {cores: 16, mem: 8}
+gmx_em: {cores: 16, mem: 8}
+gmx_fep: {cores: 16, mem: 8}
+
 # gmx_md: {runner: remote_cluster_mq_de02}
 # gmx_merge_topology_files: {runner: remote_cluster_mq_de02}
 # gmx_em: {runner: remote_cluster_mq_de02}
@@ -317,11 +365,26 @@ PeakPickerHiRes: {cores: 4, mem: 8}
 PeakPickerWavelet: {cores: 4, mem: 8}
 PepNovoAdapter: {cores: 4, mem: 8}
 PeptideIndexer: {cores: 4, mem: 8}
-PicardASMetrics: {mem: 12}
-PicardGCBiasMetrics: {mem: 12}
-PicardHsMetrics: {mem: 12}
-PicardInsertSize: {mem: 12}
-picard_CleanSam: {mem: 12}
+PicardASMetrics:
+  mem: 12
+  env:
+    _JAVA_OPTIONS: -Xmx12G -Xms1G
+PicardGCBiasMetrics:
+  mem: 12
+  env:
+    _JAVA_OPTIONS: -Xmx12G -Xms1G
+PicardHsMetrics:
+  mem: 12
+  env:
+    _JAVA_OPTIONS: -Xmx12G -Xms1G
+PicardInsertSize:
+  mem: 12
+  env:
+    _JAVA_OPTIONS: -Xmx12G -Xms1G
+picard_CleanSam:
+  mem: 12
+  env:
+    _JAVA_OPTIONS: -Xmx12G -Xms1G
 PrecursorIonSelector: {cores: 4, mem: 8}
 PrecursorMassCorrector: {cores: 4, mem: 8}
 ProteinInference: {cores: 4, mem: 8}
@@ -355,22 +418,20 @@ XMLValidator: {cores: 4, mem: 8}
 XTandemAdapter: {cores: 4, mem: 8}
 racon: {cores: 4, mem: 24}
 abims_xcms_fillPeaks: {mem: 32}
-xcms_plot_chromatogram: {mem: 16}
 abims_xcms_retcor: {mem: 32}
-abims_xcms_xcmsSet: {cores: 2, mem: 8}
 abims_CAMERA_annotateDiffreport: {mem: 32}
 anndata_export: {cores: 4}
 anndata_import: {cores: 4}
 anndata_inspect: {cores: 4}
 anndata_manipulate: {cores: 4}
 antismash:
-  cores: 12
+  cores: 10
   mem: 120
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx96G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
 bam-to-wig: {mem: 20}
 bamCompare_deepTools: {mem: 10}
-bamCorrelate_deepTools: {cores: 12, mem: 120}
+bamCorrelate_deepTools: {cores: 10, mem: 120}
 bamCoverage_deepTools: {mem: 10}
 bamFingerprint: {mem: 10}
 bedtools_intersectbed: {mem: 20}
@@ -378,10 +439,10 @@ bedtools_intersectbed_bam: {mem: 20}
 bedtools_mergebed: {mem: 15}
 bedtools_sortbed: {mem: 20}
 bedtools_subtractbed: {mem: 8}
-bfast_wrapper: {cores: 12, mem: 20}
+bfast_wrapper: {cores: 10, mem: 20}
 bg_diamond: {cores: 6, mem: 90}
-bg_diamond_makedb: {cores: 12, mem: 40}
-bgchem_fragment_merger: {cores: 12, mem: 40}
+bg_diamond_makedb: {cores: 10, mem: 40}
+bgchem_fragment_merger: {cores: 10, mem: 40}
 bigwig_to_bedgraph: {mem: 12}
 biosigner: {mem: 12}
 bismark_bowtie: {cores: 6, mem: 30, name: bismark, tmp: large}
@@ -395,14 +456,20 @@ bwa: {cores: 8, mem: 20}
 bwa_mem: {cores: 8, mem: 30}
 bwa_mem_index_builder_data_manager: {mem: 48}
 bwameth_index_builder_data_manager: {mem: 48}
+kallisto_index_builder_data_manager: {mem: 92}
 bwameth: {cores: 8, mem: 24}
 bwtool-lift: {mem: 80}
-canu: {cores: 20, mem: 64}
+cat_contigs: {mem: 24}  ## Diamond in the background
+cat_bins: {mem: 24}  ## Diamond in the background
+chira_map: {cores: 6, mem: 90}
+chira_merge: {cores: 1, mem: 60}
+chira_quantify: {cores: 1, mem: 60}
+chira_extract: {cores: 4, mem: 60}
+canu: {cores: 20, mem: 92}
 mass_spectrometry_imaging_preprocessing: {mem: 110}
 mass_spectrometry_imaging_ion_images: {mem: 20}
 mass_spectrometry_imaging_qc: {mem: 110}
 mass_spectrometry_imaging_filtering: {mem: 20}
-msnbase_readmsdata: {mem: 8}
 metaspades: {cores: 10, mem: 250}
 megahit: {cores: 10, mem: 48}
 charts: {mem: 10}
@@ -418,7 +485,7 @@ ctb_openmg:
   mem: 20
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx15G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
-ctb_pubchem_download_as_smiles: {cores: 12, mem: 20}
+ctb_pubchem_download_as_smiles: {cores: 10, mem: 20}
 cuffcompare: {mem: 10}
 cuffdiff: {cores: 6, mem: 40}
 cufflinks: {cores: 6, mem: 30}
@@ -428,25 +495,25 @@ data_manager_gemini_download: {mem: 20}
 data_manager_humann2_download: {mem: 25}
 data_manager_snpeff_databases: {mem: 12}
 data_manager_snpeff_download: {mem: 12}
-deeptools_bamCompare: {cores: 12, mem: 12}
-deeptools_bamCorrelate: {cores: 12, mem: 90}
-deeptools_bamCoverage: {cores: 12, mem: 48}
-deeptools_bamFingerprint: {cores: 12, mem: 12}
-deeptools_bam_compare: {cores: 12, mem: 24}
-deeptools_bam_coverage: {cores: 12, mem: 24}
-deeptools_bam_pe_fragmentsize: {cores: 12, mem: 24}
-deeptools_bigwigCompare: {cores: 12, mem: 12}
-deeptools_bigwigCorrelate: {cores: 12, mem: 40}
-deeptools_bigwig_compare: {cores: 12, mem: 24}
-deeptools_computeGCBias: {cores: 12, mem: 24}
-deeptools_computeMatrix: {cores: 12, mem: 24}
-deeptools_compute_gc_bias: {cores: 12, mem: 24}
-deeptools_compute_matrix: {cores: 12, mem: 30}
-deeptools_correctGCBias: {cores: 12, mem: 24}
-deeptools_correct_gc_bias: {cores: 12, mem: 24}
+deeptools_bamCompare: {cores: 10, mem: 12}
+deeptools_bamCorrelate: {cores: 10, mem: 90}
+deeptools_bamCoverage: {cores: 10, mem: 48}
+deeptools_bamFingerprint: {cores: 10, mem: 12}
+deeptools_bam_compare: {cores: 10, mem: 24}
+deeptools_bam_coverage: {cores: 10, mem: 24}
+deeptools_bam_pe_fragmentsize: {cores: 10, mem: 24}
+deeptools_bigwigCompare: {cores: 10, mem: 12}
+deeptools_bigwigCorrelate: {cores: 10, mem: 40}
+deeptools_bigwig_compare: {cores: 10, mem: 24}
+deeptools_computeGCBias: {cores: 10, mem: 24}
+deeptools_computeMatrix: {cores: 10, mem: 24}
+deeptools_compute_gc_bias: {cores: 10, mem: 24}
+deeptools_compute_matrix: {cores: 10, mem: 30}
+deeptools_correctGCBias: {cores: 10, mem: 24}
+deeptools_correct_gc_bias: {cores: 10, mem: 24}
 deeptools_heatmapper: {mem: 25}
-deeptools_multi_bam_summary: {cores: 12, mem: 24}
-deeptools_multi_bigwig_summary: {cores: 12, mem: 40}
+deeptools_multi_bam_summary: {cores: 10, mem: 24}
+deeptools_multi_bigwig_summary: {cores: 10, mem: 40}
 deeptools_plot_correlation: {mem: 20}
 deeptools_plot_coverage: {mem: 20}
 deeptools_plot_fingerprint: {mem: 20}
@@ -462,50 +529,50 @@ demo2D00:
   nativeSpecExtra: -l lic_matlab=1
 deseq2: {mem: 8}
 dexseq_count: {mem: 25}
-diamond_database_builder: {cores: 12, mem: 90}
+diamond_database_builder: {cores: 10, mem: 90}
 dt_profiler: {mem: 10}
 eukaryotic_ncbi_submission: {cores: 24, mem: 24}
 fastq_dump: {mem: 20}
 fastqc: {mem: 20}
 featurecounts: {cores: 8, mem: 18}
-feebayes: {cores: 12, mem: 12}
+feebayes: {cores: 10, mem: 12}
 flashlfq:
   env:
-    MONO_GC_PARAMS: max-heap-size=2g
-  mem: 32
-flexbar: {cores: 12, mem: 12}
-flexbar_no_split: {cores: 12, mem: 12}
-flexbar_split_RR_bcs: {cores: 12, mem: 12}
-flexbar_split_RYYR_bcs: {cores: 12, mem: 12}
-freebayes: {cores: 12, mem: 120}
+    MONO_GC_PARAMS: max-heap-size=32g
+  mem: 64
+flexbar: {cores: 10, mem: 12}
+flexbar_no_split: {cores: 10, mem: 12}
+flexbar_split_RR_bcs: {cores: 10, mem: 12}
+flexbar_split_RYYR_bcs: {cores: 10, mem: 12}
+freebayes: {cores: 10, mem: 120}
 gatk2_base_recalibrator:
-  cores: 12
+  cores: 10
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx8G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
   mem: 24
   name: _special
-gatk2_depth_of_coverage: {cores: 12, mem: 24}
-gatk2_haplotype_caller: {cores: 12, mem: 24}
+gatk2_depth_of_coverage: {cores: 10, mem: 24}
+gatk2_haplotype_caller: {cores: 10, mem: 24}
 gatk2_indel_realigner: {mem: 10}
-gatk2_print_reads: {cores: 12, mem: 24}
-gatk2_realigner_target_creator: {cores: 12, mem: 24}
+gatk2_print_reads: {cores: 10, mem: 24}
+gatk2_realigner_target_creator: {cores: 10, mem: 24}
 gatk2_reduce_reads:
-  cores: 12
+  cores: 10
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx8G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
   mem: 24
   name: _special
-gatk2_unified_genotyper: {cores: 12, mem: 24}
-gatk2_variant_annotator: {cores: 12, mem: 24}
-gatk2_variant_apply_recalibration: {cores: 12, mem: 24}
-gatk2_variant_combine: {cores: 12, mem: 24}
-gatk2_variant_eval: {cores: 12, mem: 24}
+gatk2_unified_genotyper: {cores: 10, mem: 24}
+gatk2_variant_annotator: {cores: 10, mem: 24}
+gatk2_variant_apply_recalibration: {cores: 10, mem: 24}
+gatk2_variant_combine: {cores: 10, mem: 24}
+gatk2_variant_eval: {cores: 10, mem: 24}
 gatk2_variant_filtration: {mem: 10}
-gatk2_variant_recalibrator: {cores: 12, mem: 24}
-gatk2_variant_select: {cores: 12, mem: 24}
-gatk2_variant_validate: {cores: 12, mem: 24}
+gatk2_variant_recalibrator: {cores: 10, mem: 24}
+gatk2_variant_select: {cores: 10, mem: 24}
+gatk2_variant_validate: {cores: 10, mem: 24}
 gatk_picard_index_builder: {mem: 12}
-gemini_load: {cores: 12, mem: 40}
+gemini_load: {cores: 10, mem: 40}
 
 # Permissions
 #gemini_query:
@@ -516,7 +583,7 @@ gemini_load: {cores: 12, mem: 40}
 
 ggplot2_heatmap2: {mem: 24}
 glassgo: {mem: 4, runner: condor_docker}
-graphprot_predict_profile: {mem: 8}
+graphprot_predict_profile: {mem: 16}
 # this tool was developed by IGC Bioinformatics Unit and Daniel Sobral from ELIXIR-PT
 # goenrichment: {runner: remote_cluster_mq_pt01}
 hammock_1.0:
@@ -526,27 +593,66 @@ hammock_1.0:
   name: java_temp
 heatmapper: {mem: 25}
 heatmapper_deepTools: {mem: 25}
-hicexplorer_hicbuildmatrix: {cores: 10, mem: 120}
+hicexplorer_hicbuildmatrix: {cores: 10, mem: 110}
 hicexplorer_hiccorrectmatrix: {mem: 64}
 hicexplorer_hiccorrelate: {mem: 20}
 hicexplorer_hicfindtads: {mem: 20}
-hicexplorer_hicplotmatrix: {mem: 210}
+hicexplorer_hicplotmatrix: {mem: 32}
 hicexplorer_hicplottads: {mem: 20}
-hicexplorer_hicsummatrices: {mem: 65}
-hicexplorer_hicpca: {cores: 12, mem: 60}
+hicexplorer_hicsummatrices: {mem: 64}
+hicexplorer_hicpca: {cores: 10, mem: 60}
 hicexplorer_hicmergematrixbins: {mem: 80}
-hicexplorer_hictransform: {cores: 12, mem: 60}
+hicexplorer_hictransform: {cores: 10, mem: 60}
 hicexplorer_hicplotviewpoint: {mem: 12}
 hicexplorer_hicaggregatecontacts: {mem: 12}
+hicexplorer_chicaggregatestatistic: {cores: 20, mem: 60}
+hicexplorer_chicdifferentialtest: {cores: 20, mem: 60}
+hicexplorer_chicplotviewpoint: {cores: 20, mem: 60}
+hicexplorer_chicqualitycontrol: {cores: 20, mem: 60}
+hicexplorer_chicsignificantinteractions: {cores: 20, mem: 60}
+hicexplorer_chicviewpoint: {cores: 20, mem: 60}
+hicexplorer_chicviewpointbackgroundmodel: {cores: 20, mem: 60}
+
+schicexplorer_schicdemultiplex: {cores: 5, mem: 64}
+schicexplorer_schicadjustmatrix: {cores: 5, mem: 64}
+schicexplorer_schiccluster: {cores: 20, mem: 64}
+schicexplorer_schiccorrectmatrices: {cores: 20, mem: 110}
+schicexplorer_schiccreatebulkmatrix: {cores: 10, mem: 64}
+schicexplorer_schicclustercomparments: {cores: 20, mem: 64}
+schicexplorer_schicclusterminhash: {cores: 20, mem: 240}
+schicexplorer_schicclustersvl: {cores: 20, mem: 20}
+schicexplorer_schicconsensusmatrices: {cores: 20, mem: 64}
+schicexplorer_schicinfo: {cores: 1, mem: 8}
+schicexplorer_schicmergematrixbins: {cores: 20, mem: 64}
+schicexplorer_schicmergetoscool: {cores: 20, mem: 64}
+schicexplorer_schicnormalize: {cores: 20, mem: 64}
+schicexplorer_schicplotclusterprofiles: {cores: 20, mem: 64}
+schicexplorer_schicplotconsensusmatrices: {cores: 10, mem: 32}
+schicexplorer_schicqualitycontrol: {cores: 20, mem: 64}
+
+
 hicup_mapper: {cores: 6, mem: 24}
-hisat: {cores: 12, mem: 20}
+hisat: {cores: 10, mem: 20}
 #hisat2: {cores: 8, mem: 20, runner: condor_singularity_with_conda}
 hisat2: {cores: 8, mem: 20}
 
-hisat2_index_builder_data_manager: {cores: 12, mem: 180}
+hisat2_index_builder_data_manager: {cores: 10, mem: 180}
 hmmer_hmmsearch: {mem: 10}
 htseq_count: {mem: 32}
 humann2: {cores: 6, mem: 90}
+
+hyphy_busted: {cores: 10, mem: 10}
+hyphy_bgm: {cores: 10, mem: 10}
+hyphy_gard: {cores: 10, mem: 10}
+hyphy_absrel: {cores: 10, mem: 10}
+hyphy_fubar: {cores: 10, mem: 10}
+hyphy_relax: {cores: 10, mem: 10}
+hyphy_fade: {cores: 10, mem: 10}
+hyphy_sm19: {cores: 10, mem: 10}
+hyphy_meme: {cores: 10, mem: 10}
+hyphy_slac: {cores: 10, mem: 10}
+hyphy_fel: {cores: 10, mem: 10}
+
 infernal_cmbuild: {cores: 10, mem: 20}
 infernal_cmsearch: {cores: 10, mem: 20}
 interproscan:
@@ -554,21 +660,19 @@ interproscan:
     PATH: $PATH:/data/0/interproscan/interproscan-5.36-75.0/
   mem: 40
   cores: 6
-iqtree: {cores: 12}
+iqtree: {cores: 10}
 iterative_map_pipeline: {mem: 60}
 je_clip: {cores: 8}
 je_demultiplex: {cores: 8, mem: 20}
 je_demultiplex_illu: {cores: 8}
 je_markdupes: {cores: 8}
 join1: {mem: 18}
-jq: {runner: remote_cluster_mq_pt01}
+#jq: {runner: remote_cluster_mq_pt01}
 kallisto_quant: {cores: 8, mem: 20}
-kallisto_index_builder_data_manager: {mem: 24}
 ## uha,	with the reference.fa file from	the history it is not working?
 ## kallisto_quant: {cores: 8, mem: 20_singularity}
 lastz_wrapper_2: {mem: 8}
 limma_voom: {mem: 4}
-lofreq_call:  {cores: 8, mem: 4}
 macs2_bdgdiff: {mem: 10}
 macs2_callpeak: {mem: 15}
 maldi_quant_preprocessing: {mem: 400}
@@ -578,10 +682,10 @@ megablast_wrapper: {mem: 20}
 meme_dreme: {mem: 16}
 meme_fimo: {mem: 4}
 merge_pcr_duplicates.py: {mem: 4}
-methtools_calling: {cores: 12, mem: 40}
+methtools_calling: {cores: 10, mem: 40}
 methtools_filter: {mem: 10}
-methtools_plot: {cores: 12, mem: 20}
-metilene: {cores: 12, mem: 20}
+methtools_plot: {cores: 10, mem: 20}
+metilene: {cores: 10, mem: 20}
 mimodd_varcall: {cores: 6}
 minced: {mem: 10}
 migmap:
@@ -590,6 +694,7 @@ migmap:
   mem: 96
   name: java_temp
 proteomics_moff: {mem: 20, cores: 6}
+metagene_annotator: {mem: 16}
 mmbios01:
   env:
     HOME: /data/2/galaxy_db/tmp
@@ -614,15 +719,17 @@ morpheus:
   mem: 64
 msaboot: {mem: 6}
 naive_variant_caller: {mem: 20}
+ncbi_blastp_wrapper: {cores: 8, mem: 40, runner: condor_intensive_jobs, force_destination_id: True}
+ncbi_blastn_wrapper: {cores: 8, mem: 20}
 ncbi_makeblastdb: {mem: 20}
 nspdk_sparse: {mem: 16}
 numeric_clustering: {mem: 12}
 peakachu: {mem: 16}
 peptide_shaker:
-  cores: 12
+  cores: 10
   env:
-    _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx25G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
-  mem: 32
+    _JAVA_OPTIONS: -XX:MaxPermSize=4G -Xmx64G -Xms4G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
+  mem: 92
   name: _special
 picard_ARRG: {mem: 12}
 picard_AddOrReplaceReadGroups: {mem: 12}
@@ -640,7 +747,11 @@ picard_FilterSamReads:
   tmp: large
 picard_FixMateInformation: {mem: 12}
 picard_FastqToSam: {mem: 12}
-picard_MarkDuplicates: {mem: 12}
+picard_MarkDuplicates:
+  env:
+    _JAVA_OPTIONS: -Xmx12G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
+  mem: 12
+  name: java_temp
 picard_MergeSamFiles: {mem: 12}
 picard_QualityScoreDistribution: {mem: 12}
 picard_ReorderSam: {mem: 12}
@@ -653,6 +764,8 @@ picard_SortSam:
   name: java_temp
 picard_index_builder_data_manager: {mem: 12}
 piranha: {mem: 15}
+plotly_regression_performance_plots: {mem: 8}
+porechop: {mem: 12}
 preproc: {mem: 10}
 prokaryotic_ncbi_submission: {cores: 24, mem: 24}
 prokka:
@@ -660,10 +773,12 @@ prokka:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx15G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
   mem: 20
 proteomics_search_msgfplus_1: {mem: 10}
+pyprophet_score: {mem: 800, cores: 1}
 pureclip: {mem: 32, cores: 2}
+qualimap_bamqc: {mem: 24}
 quality_metrics: {mem: 12}
 r_correlation_matrix: {mem: 80}
-rbc_mirdeep2_mapper: {cores: 12, mem: 20}
+rbc_mirdeep2_mapper: {cores: 10, mem: 20}
 rcas: {cores: 4, mem: 16}
 reactome_pathwaymatcher:
   mem: 20
@@ -671,13 +786,16 @@ reactome_pathwaymatcher:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx17G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp
 rgEstLibComp: {mem: 12}
 rgPicFixMate: {mem: 12}
-rgPicardMarkDups: {mem: 12}
+rgPicardMarkDups:
+  mem: 12
+  env:
+    _JAVA_OPTIONS: -Xmx12G -Xms1G
 rm_spurious_events.py: {mem: 4}
-rna_star: {cores: 12, mem: 140}
+rna_star: {cores: 10, mem: 140}
 rna_starsolo: {cores: 4, mem: 40}
 rna_star_index_builder_data_manager:
-  cores: 12
-  mem: 100
+  cores: 10
+  mem: 300
   params:
     local_slots: 6
 rnbeads: {mem: 20}
@@ -757,12 +875,12 @@ sam_merge2:
   mem: 32
 # samtools_stats: {runner: remote_cluster_mq_de01}
 search_gui:
-  cores: 12
+  cores: 10
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx6G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp -Duser.home=/data/2/galaxy_db/tmp
   mem: 12
   name: special
-secretbt2test: {cores: 12, mem: 20}
+secretbt2test: {cores: 10, mem: 20}
 segemehl: {mem: 80}
 seq_filter_by_mapping: {mem: 8}
 shovill:
@@ -789,7 +907,6 @@ show_3D_surface_plot:
   name: matlab
   nativeSpecExtra: -l lic_matlab=1
 signalp3: {mem: 10}
-sklearn_searchcv: {cores: 12, mem: 16}
 smooth_running_window: {mem: 32}
 snippy: {mem: 12}
 snpEff: {mem: 12}
@@ -805,17 +922,17 @@ snpSift_caseControl: {mem: 12}
 snpSift_filter: {mem: 18}
 snpSift_geneSets: {mem: 12}
 snpSift_int: {mem: 12}
-spades: {cores: 12, mem: 128}
+spades: {cores: 10, mem: 256}
 sshmm: {mem: 16}
 structurefold: {mem: 12}
-rnaspades: {cores: 12, mem: 90}
+rnaspades: {cores: 10, mem: 90}
 stringtie: {mem: 25}
 t_coffee:
   env:
     DIR_4_TCOFFEE: $TMP
     TMP_4_TCOFFEE: $TMP
     CACHE_4_TCOFFEE: $TMP
-tophat2: {cores: 12, mem: 90}
+tophat2: {cores: 10, mem: 90}
 tp_easyjoin_tool: {mem: 12}
 tp_multijoin_tool: {mem: 8}
 tp_uniq_tool: {mem: 12}
@@ -827,7 +944,7 @@ trimmomatic:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx6G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp -Duser.home=/data/2/galaxy_db/tmp
 trinity:
   cores: 4
-  mem: 220
+  mem: 512
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx170G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp -Duser.home=/data/2/galaxy_db/tmp
   name: special
@@ -835,7 +952,7 @@ umi_tools_group: {mem: 12}
 umi_tools_dedup: {mem: 12}
 umi_tools_extract: {mem: 4}
 unicycler:
-  cores: 12
+  cores: 10
   env:
     _JAVA_OPTIONS: -XX:MaxPermSize=2G -Xmx6G -Xms1G -Djava.io.tmpdir=/data/2/galaxy_db/tmp -Duser.home=/data/2/galaxy_db/tmp
     TERM: vt100
