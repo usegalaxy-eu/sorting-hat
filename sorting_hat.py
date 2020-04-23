@@ -152,9 +152,6 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
         else:
             destination = DEFAULT_DESTINATION
 
-    if destination == 'remote_condor_cluster_gpu_docker':
-        destination = sample(JOINT_DESTINATIONS['remote_condor_cluster_gpu_docker'], 1)[0]
-    
     env = dict(dest_spec.get(destination, {'env': {}})['env'])
     params = dict(dest_spec.get(destination, {'params': {}})['params'])
     tags = {dest_spec.get(destination).get('tags', None)}
