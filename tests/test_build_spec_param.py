@@ -29,13 +29,12 @@ class TestBuildSpecParam(unittest.TestCase):
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
-
         self.assertEqual(params['request_cpus'], result['params']['request_cpus'])
 
     def test_pass_param_cores(self):
         """
         Test cores request for each tools.
-        '*request_cpus' has to be in params with the same value provided by the tool.
+        'request_cpus' has to be in params with the same value provided by the tool.
         """
         for tool_label in TOOL_DESTINATIONS:
             if 'cores' in TOOL_DESTINATIONS[tool_label]:
@@ -105,9 +104,7 @@ class TestBuildSpecParam(unittest.TestCase):
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
         _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
-
         self.assertEqual(params['request_memory'], result['params']['request_memory'])
-
 
     def test_pass_docker_params(self):
         """
@@ -118,7 +115,7 @@ class TestBuildSpecParam(unittest.TestCase):
             _tool_spec = {_tool_label: 
                 {
                     'runner': dest,
-                    'docker_set_user' : 1000,
+                    'docker_set_user': 1000,
                     'docker_run_extra_arguments': 'extra argument',
                 }   
             }
@@ -137,6 +134,55 @@ class TestBuildSpecParam(unittest.TestCase):
             if 'docker_enabled' in params and params['docker_enabled']:
                 for i in ['docker_set_user', 'docker_run_extra_arguments']:
                     self.assertEqual(params[i], result['params'][i])
+
+    def test_pass_subparam_params(self):
+        """
+        Test if build_spec handles properly a destination with the params array containing
+        a list of array.
+        'subparam' has to be in params with the same value provided by the destination
+        """
+        _tool_label = '_unittest_tool'
+        _dest_label = '_unittest_destination'
+
+        _tool_spec = {_tool_label:
+            {
+                'runner': _dest_label
+            }
+        }
+        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+
+        _dest_spec = {_dest_label:
+            {
+                'env': {},
+                'params':
+                    {
+                        'subparam': [
+                            {
+                                'name1': 'value1',
+                                'name2': "value2"
+                            }
+                        ]
+                    }
+            }
+        }
+        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        result = {
+                'params': {
+                    'subparam': [
+                        {
+                           'name1': 'value1',
+                           'name2': "value2"
+                        }
+                    ]
+                }
+        }
+        tool_id = _tool_label
+        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+
+        self.assertIn('subparam', params)
+        self.assertIsInstance(params['subparam'], list)
+        self.assertEqual(result['params'], params)
 
 
 if __name__ == '__main__':
