@@ -3,10 +3,19 @@ help:
 	@echo " "
 	@echo "  clean              to make some cleans"
 	@echo "  test               to run tests"
+	@echo "  test-eu            to run tests using Usegalaxy.eu details"
 
 test: create_fake_galaxy_jobs_module venv
 	. venv/bin/activate ; \
 	python -m unittest discover -s tests
+
+test-eu: create_fake_galaxy_jobs_module venv
+	wget https://raw.githubusercontent.com/usegalaxy-eu/infrastructure-playbook/master/files/galaxy/dynamic_rules/usegalaxy/destination_specifications.yaml -O destination_specifications.yaml
+	wget https://raw.githubusercontent.com/usegalaxy-eu/infrastructure-playbook/master/files/galaxy/dynamic_rules/usegalaxy/tool_destinations.yaml -O tool_destinations.yaml
+	. venv/bin/activate ; \
+	python -m unittest discover -s tests
+	git checkout -- destination_specifications.yaml
+	git checkout -- tool_destinations.yaml
 
 clean:
 	find . -name '*.pyc' -delete
