@@ -42,7 +42,6 @@ If you're evil and insecure
 --hexylena
 """
 import copy
-import math
 import os
 
 import yaml
@@ -236,11 +235,6 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
             if k.startswith('docker'):
                 params[k] = tool_spec.get(k, '')
 
-    # Allow more human-friendly specification
-    if 'nativeSpecification' in params:
-        params['nativeSpecification'] = params['nativeSpecification'].replace('\n', ' ').strip()
-
-    # We have some destination specific kwargs. `nativeSpecExtra` and `tmp` are only defined for SGE
     if 'condor' in destination:
         if 'cores' in tool_spec:
             # kwargs['PARALLELISATION'] = tool_cores
@@ -279,9 +273,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     tags.discard(None)
     tags = ','.join([x for x in tags if x is not None]) if len(tags) > 0 else None
 
-    if destination == 'sge':
-        runner = 'drmaa'
-    elif 'condor' in destination:
+    if 'condor' in destination:
         runner = 'condor'
     elif 'remote_cluster_mq' in destination:
         # destination label has to follow this convention:
@@ -356,16 +348,6 @@ def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memor
     # These we're running on a specific subset
     elif 'interactive_tool_' in tool_id:
         tool_spec['requirements'] = 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
-
-    return tool_spec
-
-
-def convert_to(tool_spec, runner):
-    tool_spec['runner'] = runner
-
-    if runner == 'sge':
-        # sge doesn't accept non-ints
-        tool_spec['mem'] = int(math.ceil(tool_spec['mem']))
 
     return tool_spec
 

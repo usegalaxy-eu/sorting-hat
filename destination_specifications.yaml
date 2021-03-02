@@ -142,28 +142,6 @@ condor_docker_interactive:
     docker_set_user: ''
     tmp_dir: 'True'
 
-sge:
-  env: {}
-  params:
-    nativeSpecification: |
-        -p -{PRIORITY}
-        -l galaxy1_slots=1
-        -l h_vmem={MEMORY}
-        {NATIVE_SPEC_EXTRA}
-        {PARALLELISATION}
-        -v _JAVA_OPTIONS
-        -v TEMP
-        -v TMPDIR
-        -v PATH
-        -v PYTHONPATH
-        -v LD_LIBRARY_PATH
-        -v XAPPLRESDIR
-        -v GDFONTPATH
-        -v GNUPLOT_DEFAULT_GDFONT
-        -v MPLCONFIGDIR
-        -soft
-        -l galaxy1_dedicated=1
-
 remote_cluster_mq_it01:
   limits:
     cores: 16
