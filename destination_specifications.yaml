@@ -48,6 +48,9 @@ condor_singularity:
 #      resolve_dependencies: true
 
 remote_cluster_mq_cz:
+  limits:
+    cores: 16
+    mem: 31
   env: {}
   params:
     priority: -{PRIORITY}
@@ -56,15 +59,6 @@ remote_cluster_mq_cz:
     jobs_directory: '/storage/brno11-elixir/home/galaxyeu/galaxy-staging/'
     dependency_resolution: 'remote'
     submit_user: 'galaxy'
-
-remote_cluster_mq_test:
-  env: {}
-  params:
-    priority: -{PRIORITY}
-    request_cpus: '{PARALLELISATION}'
-    request_memory: '{MEMORY}'
-    jobs_directory: '/data/share/staging/'
-    dependency_resolution: 'remote'
 
 condor_docker_ie:
   limits:
@@ -106,6 +100,9 @@ condor_docker_ie_interactive:
     tmp_dir: 'True'
 
 condor_docker:
+  limits:
+    cores: 16
+    mem: 31
   env:
     # this can be removed, as soon as we don't expose this env on cn029 anymore
     DOCKER_HOST: ''
@@ -125,6 +122,9 @@ condor_docker:
 
 
 condor_docker_interactive:
+  limits:
+    cores: 16
+    mem: 31
   env:
     # this can be removed, as soon as we don't expose this env on cn029 anymore
     DOCKER_HOST: ''
