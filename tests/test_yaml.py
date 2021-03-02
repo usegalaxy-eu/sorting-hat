@@ -49,9 +49,10 @@ class TestYamlFile(unittest.TestCase):
         needed_keys = ['env', 'limits', 'params']
         for k in needed_keys:
             for destination, value in SPECIFICATIONS.items():
-                with self.subTest(value=value.keys()):
-                    self.assertTrue(k in value,
-                                    msg="{} is not defined into {} destination".format(k, destination))
+                if 'unittest' not in destination:
+                    with self.subTest(value=value.keys()):
+                        self.assertTrue(k in value,
+                                        msg="{} is not defined into {} destination".format(k, destination))
 
 
 if __name__ == '__main__':
