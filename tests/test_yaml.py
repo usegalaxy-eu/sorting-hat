@@ -3,7 +3,7 @@ import collections
 from string import ascii_letters
 
 from sorting_hat import TOOL_DESTINATION_PATH, TOOL_DESTINATION_ALLOWED_KEYS, TOOL_DESTINATIONS, \
-                        SPECIFICATION_ALLOWED_KEYS, SPECIFICATIONS
+    SPECIFICATION_ALLOWED_KEYS, SPECIFICATIONS
 
 
 class TestYamlFile(unittest.TestCase):
@@ -28,7 +28,9 @@ class TestYamlFile(unittest.TestCase):
         """
         for tool, value in TOOL_DESTINATIONS.items():
             for k in value.keys():
-                self.assertTrue(k in TOOL_DESTINATION_ALLOWED_KEYS, msg="{} in {} is not an allowed key".format(k, tool))
+                with self.subTest(k=k):
+                    self.assertTrue(k in TOOL_DESTINATION_ALLOWED_KEYS,
+                                    msg="{} in {} is not an allowed key".format(k, tool))
 
     def test_specifications_keys(self):
         """
@@ -36,7 +38,20 @@ class TestYamlFile(unittest.TestCase):
         """
         for destination, value in SPECIFICATIONS.items():
             for k in value.keys():
-                self.assertTrue(k in SPECIFICATION_ALLOWED_KEYS, msg="{} in {} is not an allowed key".format(k, destination))
+                with self.subTest(k=k):
+                    self.assertTrue(k in SPECIFICATION_ALLOWED_KEYS,
+                                    msg="{} in {} is not an allowed key".format(k, destination))
+
+    def test_specification_needed_keys(self):
+        """
+        Test if destinations have the needed keys
+        """
+        needed_keys = ['env', 'limits', 'params']
+        for k in needed_keys:
+            for destination, value in SPECIFICATIONS.items():
+                with self.subTest(value=value.keys()):
+                    self.assertTrue(k in value,
+                                    msg="{} is not defined into {} destination".format(k, destination))
 
 
 if __name__ == '__main__':
