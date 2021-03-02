@@ -41,18 +41,15 @@ If you're evil and insecure
 
 --hexylena
 """
-from galaxy.jobs import JobDestination
-from galaxy.jobs.mapper import JobMappingException
-from random import sample
-
 import copy
 import math
 import os
+
 import yaml
 
-# Maximum resources
-CONDOR_MAX_CORES = 40
-CONDOR_MAX_MEM = 1000
+from galaxy.jobs import JobDestination
+from galaxy.jobs.mapper import JobMappingException
+from random import sample
 
 # The default / base specification for the different environments.
 SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'destination_specifications.yaml')
