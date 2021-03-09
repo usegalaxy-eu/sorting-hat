@@ -27,7 +27,7 @@ class TestBuildSpecParam(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertEqual(params['request_cpus'], result['params']['request_cpus'])
 
@@ -48,7 +48,7 @@ class TestBuildSpecParam(unittest.TestCase):
             
             tool_id = tool_label
             tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-            _, params, dest, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+            _, params, dest, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
             if dest.startswith('remote_cluster_mq'):
                 self.assertEqual(params['submit_request_cpus'], result['params']['submit_request_cpus'])
@@ -74,7 +74,7 @@ class TestBuildSpecParam(unittest.TestCase):
 
             tool_id = _tool_label
             tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-            _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+            _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
             if dest.startswith('remote_cluster_mq'):
                 self.assertFalse('submit_request_gpus' in params)
@@ -102,7 +102,7 @@ class TestBuildSpecParam(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertEqual(params['request_memory'], result['params']['request_memory'])
 
@@ -129,7 +129,7 @@ class TestBuildSpecParam(unittest.TestCase):
 
             tool_id = _tool_label
             tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-            _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+            _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
         
             if 'docker_enabled' in params and params['docker_enabled']:
                 for i in ['docker_set_user', 'docker_run_extra_arguments']:
@@ -178,7 +178,7 @@ class TestBuildSpecParam(unittest.TestCase):
         }
         tool_id = _tool_label
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, params, _, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertIn('subparam', params)
         self.assertIsInstance(params['subparam'], list)

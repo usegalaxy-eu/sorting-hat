@@ -8,6 +8,13 @@ class TestDestinations(unittest.TestCase):
 
     def test_default_destination(self):
         """
+        Check DEFAULT_DESTINATION is not an empty string
+        """
+        self.assertTrue(len(DEFAULT_DESTINATION),
+                        msg="Default destination is empty".format())
+
+    def test_default_destination_in_specification(self):
+        """
         Test DEFAULT_DESTINATION exists in SPECIFICATIONS
         """
         self.assertTrue(DEFAULT_DESTINATION in SPECIFICATIONS,
@@ -59,7 +66,6 @@ class TestDestinations(unittest.TestCase):
 
         self.assertEqual(name, result)
 
-
     def test_force_destination_id_false(self):
         """
         Test
@@ -83,14 +89,14 @@ class TestDestinations(unittest.TestCase):
 
         self.assertEqual(name, result)
 
-    def test_force_destination_id_false(self):
+    def test_force_destination_id_default(self):
         """
         Test
         """
         _tool_label = '_unittest_tool'
 
         _tool_spec = {_tool_label: {}
-        }
+                      }
 
         TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
 

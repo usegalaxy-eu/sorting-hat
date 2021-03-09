@@ -15,7 +15,7 @@ class TestSpecialTools(unittest.TestCase):
                     {'name': 'GALAXY_SLOTS', 'value': '1'},
                     {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
-                       'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
+                       'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"', 'request_cpus': '1',
                        'accounting_group_user': '', 'description': 'upload1'},
             'runner': DEFAULT_DESTINATION,
             'tool_spec': {'mem': 0.3, 'runner': 'condor', 'rank': 'GalaxyGroup == "upload"',
@@ -40,7 +40,7 @@ class TestSpecialTools(unittest.TestCase):
                     {'name': 'GALAXY_SLOTS', 'value': '1'},
                     {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp/'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
-                       'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
+                       'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"', 'request_cpus': '1',
                        'accounting_group_user': '', 'description': '__DATA_FETCH__'},
             'runner': DEFAULT_DESTINATION,
             'tool_spec': {'mem': 0.3, 'runner': 'condor', 'rank': 'GalaxyGroup == "upload"',
@@ -65,7 +65,7 @@ class TestSpecialTools(unittest.TestCase):
                     {'name': 'GALAXY_MEMORY_MB', 'value': '307'}, 
                     {'name': 'GALAXY_SLOTS', 'value': '1'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'tmp_dir': 'True', 'requirements':
-                       'GalaxyTraining == false', 'rank': 'GalaxyGroup == "metadata"',
+                       'GalaxyTraining == false', 'rank': 'GalaxyGroup == "metadata"', 'request_cpus': '1',
                        'accounting_group_user': '', 'description': '__SET_METADATA__'},
             'runner': DEFAULT_DESTINATION,
             'tool_spec': {'mem': 0.3, 'runner': 'condor', 'rank': 'GalaxyGroup == "metadata"',
@@ -78,6 +78,20 @@ class TestSpecialTools(unittest.TestCase):
         self.assertEqual(env, result['env'])
         self.assertEqual(params, result['params'])
         self.assertEqual(runner, result['runner'])
+        self.assertEqual(tool_spec, result['tool_spec'])
+
+    def test_tool_interactive_tool_(self):
+        """
+        Test that it pass default values if called without specifications
+        """
+        result = {
+            'tool_spec': {'cores': 1, 'mem': 4.0, 'gpus': 0, 'force_destination_id': False, 'runner': 'condor',
+                          'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'}
+        }
+        tool_id = 'interactive_tool_unittest_tool'
+
+        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
+
         self.assertEqual(tool_spec, result['tool_spec'])
 
 

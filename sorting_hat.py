@@ -43,44 +43,40 @@ If you're evil and insecure
 """
 import copy
 import os
-
 import yaml
 
 from galaxy.jobs import JobDestination
 from galaxy.jobs.mapper import JobMappingException
 from random import sample
 
+# Sorting Hat configuration details are defined in this file
+SH_CONFIGURATION_FILENAME = 'sorting_hat.yaml'
+SH_CONFIGURATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), SH_CONFIGURATION_FILENAME)
+with open(SH_CONFIGURATION_PATH, 'r') as handle:
+    SH_CONFIGURATION = yaml.load(handle, Loader=yaml.SafeLoader)
+
+DEFAULT_DESTINATION = SH_CONFIGURATION.get('default_destination')
+DEFAULT_TOOL_SPEC = SH_CONFIGURATION.get('default_tool_specification')
+FDID_PREFIX = SH_CONFIGURATION.get('force_destination_id_prefix')
+SPECIAL_TOOLS = SH_CONFIGURATION.get('special_tools')
+SPECIFICATION_ALLOWED_KEYS = SH_CONFIGURATION.get('allowed_keys').get('destination_specifications')
+TOOL_DESTINATION_ALLOWED_KEYS = SH_CONFIGURATION.get('allowed_keys').get('tool_destinations')
+
+JOINT_DESTINATIONS_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                       SH_CONFIGURATION.get('file_paths').get('joint_destinations'))
+with open(JOINT_DESTINATIONS_PATH, 'r') as handle:
+    JOINT_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
+
 # The default / base specification for the different environments.
-SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'destination_specifications.yaml')
+SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                  SH_CONFIGURATION.get('file_paths').get('destination_specifications'))
 with open(SPECIFICATION_PATH, 'r') as handle:
     SPECIFICATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
 
-TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'tool_destinations.yaml')
+TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                     SH_CONFIGURATION.get('file_paths').get('tool_destinations'))
 with open(TOOL_DESTINATION_PATH, 'r') as handle:
     TOOL_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
-
-DEFAULT_DESTINATION = 'condor'
-DEFAULT_TOOL_SPEC = {
-    'cores': 1,
-    'mem': 4.0,
-    'gpus': 0,
-    'force_destination_id': False,
-    'runner': DEFAULT_DESTINATION
-}
-
-TOOL_DESTINATION_ALLOWED_KEYS = ['cores', 'env', 'gpus', 'mem', 'name', 'nativeSpecExtra',
-                                 'params', 'permissions', 'runner', 'tags', 'tmp', 'force_destination_id',
-                                 'docker_auto_rm', 'docker_default_container_id', 'docker_set_user',
-                                 'docker_memory', 'docker_run_extra_arguments', 'docker_set_user',
-                                 'docker_sudo', 'docker_volumes']
-
-SPECIFICATION_ALLOWED_KEYS = ['env', 'limits', 'params', 'tags', 'nodes']
-
-FDID_PREFIX = 'sh_fdid_'
-
-JOINT_DESTINATIONS_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'joint_destinations.yaml')
-with open(JOINT_DESTINATIONS_PATH, 'r') as handle:
-    JOINT_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
 
 
 def assert_permissions(tool_spec, user_email, user_roles):
@@ -154,6 +150,10 @@ def get_tool_id(tool_id):
 
 
 def name_it(tool_spec, prefix=FDID_PREFIX):
+    """
+    Create a destination's name using the tool's specification.
+    Can be also forced to a specific string
+    """
     if 'cores' in tool_spec:
         name = '%scores_%sG' % (tool_spec.get('cores', 1), tool_spec.get('mem', 4))
     elif len(tool_spec.keys()) == 0 or (len(tool_spec.keys()) == 1 and 'runner' in tool_spec):
@@ -175,6 +175,9 @@ def name_it(tool_spec, prefix=FDID_PREFIX):
 
 
 def _get_limits(destination, dest_spec=SPECIFICATIONS, default_cores=1, default_mem=4, default_gpus=0):
+    """
+    Get destination's limits
+    """
     limits = {'cores': default_cores, 'mem': default_mem, 'gpus': default_gpus}
     limits.update(dest_spec.get(destination).get('limits', {}))
     return limits
@@ -201,9 +204,6 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     env = dict(dest_spec.get(destination, {'env': {}})['env'])
     params = dict(dest_spec.get(destination, {'params': {}})['params'])
     tags = {dest_spec.get(destination).get('tags', None)}
-
-    # A dictionary that stores the "raw" details that went into the template.
-    raw_allocation_details = {}
 
     # We define the default memory and cores for all jobs. This is
     # semi-internal, and may not be properly propagated to the end tool
@@ -236,15 +236,6 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
                 params[k] = tool_spec.get(k, '')
 
     if 'condor' in destination:
-        if 'cores' in tool_spec:
-            # kwargs['PARALLELISATION'] = tool_cores
-            raw_allocation_details['cpu'] = tool_cores
-        else:
-            del params['request_cpus']
-
-        if 'mem' in tool_spec:
-            raw_allocation_details['mem'] = tool_memory
-
         if 'requirements' in tool_spec:
             params['requirements'] = tool_spec['requirements']
 
@@ -262,6 +253,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     # Update env and params from kwargs.
     env.update(tool_spec.get('env', {}))
     env = {k: str(v).format(**kwargs) for (k, v) in env.items()}
+
     params.update(tool_spec.get('params', {}))
     for (k, v) in params.items():
         if not isinstance(v, list):
@@ -283,7 +275,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
         runner = 'local'
 
     env = [dict(name=k, value=v) for (k, v) in env.items()]
-    return env, params, runner, raw_allocation_details, tags
+    return env, params, runner, tags
 
 
 def reroute_to_dedicated(user_roles):
@@ -313,7 +305,7 @@ def reroute_to_dedicated(user_roles):
     }
 
 
-def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memory_scale=1.0):
+def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_spec=TOOL_DESTINATIONS, memory_scale=1.0):
     # Find the 'short' tool ID which is what is used in the .yaml file.
     tool = get_tool_id(tool_id)
     # Pull the tool specification (i.e. job destination configuration for this tool)
@@ -327,8 +319,8 @@ def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memor
 
     tool_spec['mem'] *= memory_scale
 
-    # Only two tools are truly special.
-    if tool_id in ('upload1', '__DATA_FETCH__'):
+    # Only few tools are truly special.
+    if tool_id in special_tools.get('upload'):
         tool_spec = {
             'mem': 0.3,
             'runner': 'condor',
@@ -338,30 +330,29 @@ def _finalize_tool_spec(tool_id, user_roles, tools_spec=TOOL_DESTINATIONS, memor
                 'TEMP': '/data/1/galaxy_db/tmp/'
             }
         }
-    elif tool_id == '__SET_METADATA__':
+    elif tool_id in special_tools.get('metadata'):
         tool_spec = {
             'mem': 0.3,
             'runner': 'condor',
             'rank': 'GalaxyGroup == "metadata"',
             'requirements': 'GalaxyTraining == false',
         }
-    # These we're running on a specific subset
+    # These we're running on a specific nodes subset
     elif 'interactive_tool_' in tool_id:
         tool_spec['requirements'] = 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
 
     return tool_spec
 
 
-def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, memory_scale=1.0):
+def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, special_tools=SPECIAL_TOOLS, memory_scale=1.0):
     tool_spec = _finalize_tool_spec(tool_id, user_roles, memory_scale=memory_scale)
 
     # Now build the full spec
+
+    # Use this hint to force a destination (e.g. defined from the user's preferences)
     runner_hint = None
 
-    if tool_id not in ('upload1', '__DATA_FETCH__', '__SET_METADATA__'):
-        # hints = [x for x in user_roles if x.startswith('destination-')]
-        # if len(hints) > 0:
-        #     runner_hint = hints[0].replace('destination-pulsar-', 'remote_cluster_mq_')
+    if tool_id not in special_tools.get('upload') or tool_id not in special_tools.get('metadata'):
         for data_item in user_preferences:
             if "distributed_compute|remote_resources" in data_item:
                 if user_preferences[data_item] != "None":
@@ -370,7 +361,7 @@ def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, memory_
     # Ensure that this tool is permitted to run, otherwise, throw an exception.
     assert_permissions(tool_spec, user_email, user_roles)
 
-    env, params, runner, _, tags = build_spec(tool_spec, runner_hint=runner_hint)
+    env, params, runner, tags = build_spec(tool_spec, runner_hint=runner_hint)
     params['accounting_group_user'] = str(user_id)
     params['description'] = get_tool_id(tool_id)
 
@@ -400,7 +391,7 @@ def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
 
     try:
         env, params, runner, spec, tags = _gateway(tool_id, user_preferences, user_roles, user_id, email,
-                                                   memory_scale=memory_scale)
+                                                   SPECIAL_TOOLS, memory_scale=memory_scale)
     except Exception as e:
         return JobMappingException(str(e))
 

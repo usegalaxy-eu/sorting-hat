@@ -31,7 +31,7 @@ class TestBuildSpecRunner(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertEqual(runner, result)
 
@@ -66,7 +66,7 @@ class TestBuildSpecRunner(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertEqual(runner, result)
 
@@ -87,7 +87,7 @@ class TestBuildSpecRunner(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertEqual(runner, result)
 
@@ -121,7 +121,7 @@ class TestBuildSpecRunner(unittest.TestCase):
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertIn(runner, result)
         
