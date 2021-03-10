@@ -2,8 +2,10 @@ import unittest
 import collections
 from string import ascii_letters
 
-from sorting_hat import TOOL_DESTINATION_PATH, TOOL_DESTINATION_ALLOWED_KEYS, TOOL_DESTINATIONS, \
-    SPECIFICATION_ALLOWED_KEYS, SPECIFICATIONS
+from sorting_hat import sh_conf, TOOL_DESTINATION_PATH, TOOL_DESTINATIONS, SPECIFICATIONS
+
+SPECIFICATION_ALLOWED_KEYS = sh_conf.get('allowed_keys', 'destination_specifications')
+TOOL_DESTINATION_ALLOWED_KEYS = sh_conf.get('allowed_keys', 'tool_destinations')
 
 
 class TestYamlFile(unittest.TestCase):
