@@ -84,6 +84,7 @@ SH_CONFIGURATION_FILENAME = 'sorting_hat.yaml'
 sh_conf = DetailsFromYamlFile(SH_CONFIGURATION_FILENAME)
 DEFAULT_DESTINATION = sh_conf.get('default_destination')
 DEFAULT_TOOL_SPEC = sh_conf.get('default_tool_specification')
+FAST_TURNAROUND = sh_conf.get('fast_turnaround')
 FDID_PREFIX = sh_conf.get('force_destination_id_prefix')
 SPECIAL_TOOLS = sh_conf.get('special_tools')
 SPECIFICATION_ALLOWED_KEYS = sh_conf.get('allowed_keys', 'destination_specifications')
@@ -368,14 +369,14 @@ def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_
     return tool_spec
 
 
-def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, special_tools=SPECIAL_TOOLS, memory_scale=1.0):
+def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, ft=FAST_TURNAROUND,
+             special_tools=SPECIAL_TOOLS, memory_scale=1.0):
     tool_spec = _finalize_tool_spec(tool_id, user_roles, memory_scale=memory_scale)
 
     # Now build the full spec
 
     # Use this hint to force a destination (e.g. defined from the user's preferences)
     runner_hint = None
-
     if tool_id not in special_tools.get('upload') or tool_id not in special_tools.get('metadata'):
         for data_item in user_preferences:
             if "distributed_compute|remote_resources" in data_item:
@@ -390,8 +391,16 @@ def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, special
     params['description'] = get_tool_id(tool_id)
 
     # This is a special case, we're requiring it for faster feedback / turnaround times.
-    if 'training-hard-limits' in user_roles:
-        params['requirements'] = 'GalaxyGroup  ==  "training-hard-limits"'
+    # Fast turnaround can be enabled for all the jobs or per single user adding a user role
+    # with the label described by 'role_label' key.
+    ft_enabled = ft.get('enabled', False)
+    ft_mode = ft.get('mode')
+    ft_role_label = ft.get('role_label')
+    ft_requirements = ft.get('requirements')
+
+    if ft_enabled:
+        if (ft_mode == 'user_roles' and ft_role_label in user_roles) or ft_mode == 'all_jobs':
+            params['requirements'] = ft_requirements
 
     return env, params, runner, tool_spec, tags
 

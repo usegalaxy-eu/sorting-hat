@@ -39,6 +39,15 @@ default_tool_specification:
   force_destination_id: False
   runner: *dd
 
+# Enable this if you need a faster feedback / turnaround times.
+# It implies you have a compute node(s) in a Condor cluster
+# with the custom ClassAd defined in the requirements
+fast_turnaround:
+  enabled: False
+  mode: all_jobs  # can be all_jobs/user_roles
+  role_label: 'fast-turnaround'
+  requirements: 'GalaxyGroup  ==  "fast-turnaround"'
+
 # Some file paths
 file_paths:
   destination_specifications: 'destination_specifications.yaml'  # Destination details are defined in this file
