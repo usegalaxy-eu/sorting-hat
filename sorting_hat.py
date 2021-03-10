@@ -49,34 +49,55 @@ from galaxy.jobs import JobDestination
 from galaxy.jobs.mapper import JobMappingException
 from random import sample
 
+
+class DetailsFromYamlFile:
+    """
+    Retrieve details from a yaml file
+    """
+    def __init__(self, yaml_file):
+        yaml_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), yaml_file)
+        if os.path.isfile(yaml_file_path):
+            with open(yaml_file_path, 'r') as handle:
+                self._conf = yaml.load(handle, Loader=yaml.SafeLoader)
+
+    @property
+    def conf(self):
+        return self._conf
+
+    def get(self, first_level_label, second_level_label=None):
+        for key, value in self._conf.items():
+            if key == first_level_label:
+                if second_level_label is None:
+                    return value
+                else:
+                    return value.get(second_level_label)
+        return None
+
+    def get_path(self, label):
+        return os.path.join(os.path.dirname(os.path.realpath(__file__)), self.get('file_paths', label))
+
+
+
 # Sorting Hat configuration details are defined in this file
 SH_CONFIGURATION_FILENAME = 'sorting_hat.yaml'
-SH_CONFIGURATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), SH_CONFIGURATION_FILENAME)
-with open(SH_CONFIGURATION_PATH, 'r') as handle:
-    SH_CONFIGURATION = yaml.load(handle, Loader=yaml.SafeLoader)
 
-DEFAULT_DESTINATION = SH_CONFIGURATION.get('default_destination')
-DEFAULT_TOOL_SPEC = SH_CONFIGURATION.get('default_tool_specification')
-FDID_PREFIX = SH_CONFIGURATION.get('force_destination_id_prefix')
-SPECIAL_TOOLS = SH_CONFIGURATION.get('special_tools')
-SPECIFICATION_ALLOWED_KEYS = SH_CONFIGURATION.get('allowed_keys').get('destination_specifications')
-TOOL_DESTINATION_ALLOWED_KEYS = SH_CONFIGURATION.get('allowed_keys').get('tool_destinations')
-
-JOINT_DESTINATIONS_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                       SH_CONFIGURATION.get('file_paths').get('joint_destinations'))
-with open(JOINT_DESTINATIONS_PATH, 'r') as handle:
-    JOINT_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
+sh_conf = DetailsFromYamlFile(SH_CONFIGURATION_FILENAME)
+DEFAULT_DESTINATION = sh_conf.get('default_destination')
+DEFAULT_TOOL_SPEC = sh_conf.get('default_tool_specification')
+FDID_PREFIX = sh_conf.get('force_destination_id_prefix')
+SPECIAL_TOOLS = sh_conf.get('special_tools')
+SPECIFICATION_ALLOWED_KEYS = sh_conf.get('allowed_keys', 'destination_specifications')
+TOOL_DESTINATION_ALLOWED_KEYS = sh_conf.get('allowed_keys', 'tool_destinations')
 
 # The default / base specification for the different environments.
-SPECIFICATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                  SH_CONFIGURATION.get('file_paths').get('destination_specifications'))
-with open(SPECIFICATION_PATH, 'r') as handle:
-    SPECIFICATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
+SPECIFICATION_PATH = sh_conf.get_path('destination_specifications')
+SPECIFICATIONS = DetailsFromYamlFile(SPECIFICATION_PATH).conf
 
-TOOL_DESTINATION_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                     SH_CONFIGURATION.get('file_paths').get('tool_destinations'))
-with open(TOOL_DESTINATION_PATH, 'r') as handle:
-    TOOL_DESTINATIONS = yaml.load(handle, Loader=yaml.SafeLoader)
+TOOL_DESTINATION_PATH = sh_conf.get_path('tool_destinations')
+TOOL_DESTINATIONS = DetailsFromYamlFile(TOOL_DESTINATION_PATH).conf
+
+JOINT_DESTINATIONS_PATH = sh_conf.get_path('joint_destinations')
+JOINT_DESTINATIONS = DetailsFromYamlFile(JOINT_DESTINATIONS_PATH).conf
 
 
 def assert_permissions(tool_spec, user_email, user_roles):
@@ -152,7 +173,7 @@ def get_tool_id(tool_id):
 def name_it(tool_spec, prefix=FDID_PREFIX):
     """
     Create a destination's name using the tool's specification.
-    Can be also forced to a specific string
+    Can be also forced to return a specific string
     """
     if 'cores' in tool_spec:
         name = '%scores_%sG' % (tool_spec.get('cores', 1), tool_spec.get('mem', 4))
@@ -205,11 +226,10 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
     params = dict(dest_spec.get(destination, {'params': {}})['params'])
     tags = {dest_spec.get(destination).get('tags', None)}
 
-    # We define the default memory and cores for all jobs. This is
-    # semi-internal, and may not be properly propagated to the end tool
-    tool_memory = tool_spec.get('mem', 4)
-    tool_cores = tool_spec.get('cores', 1)
-    tool_gpus = tool_spec.get('gpus', 0)
+    # We define the default memory and cores for all jobs.
+    tool_memory = tool_spec.get('mem')
+    tool_cores = tool_spec.get('cores')
+    tool_gpus = tool_spec.get('gpus')
 
     # We apply some constraints to these values, to ensure that we do not
     # produce unschedulable jobs, requesting more ram/cpu than is available in a
@@ -246,7 +266,7 @@ def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
             params['+Group'] = tool_spec['+Group']
 
     if 'remote_cluster_mq' in destination:
-        # specif for condor cluster
+        # specific for condor cluster
         if tool_gpus == 0 and 'submit_request_gpus' in params:
             del params['submit_request_gpus']
 
@@ -313,7 +333,7 @@ def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_
     # Update the tool specification with any training resources that are available
     tool_spec.update(reroute_to_dedicated(user_roles))
 
-    # Update the tool specification with default values if not specified
+    # Update the tool specification with default values if they are not present
     for s in DEFAULT_TOOL_SPEC:
         tool_spec[s] = tool_spec.get(s, DEFAULT_TOOL_SPEC[s])
 
@@ -322,7 +342,9 @@ def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_
     # Only few tools are truly special.
     if tool_id in special_tools.get('upload'):
         tool_spec = {
+            'cores': 1,
             'mem': 0.3,
+            'gpus': 0,
             'runner': 'condor',
             'rank': 'GalaxyGroup == "upload"',
             'requirements': 'GalaxyTraining == false',
@@ -332,7 +354,9 @@ def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_
         }
     elif tool_id in special_tools.get('metadata'):
         tool_spec = {
+            'cores': 1,
             'mem': 0.3,
+            'gpus': 0,
             'runner': 'condor',
             'rank': 'GalaxyGroup == "metadata"',
             'requirements': 'GalaxyTraining == false',

@@ -18,7 +18,7 @@ class TestSpecialTools(unittest.TestCase):
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"', 'request_cpus': '1',
                        'accounting_group_user': '', 'description': 'upload1'},
             'runner': DEFAULT_DESTINATION,
-            'tool_spec': {'mem': 0.3, 'runner': 'condor', 'rank': 'GalaxyGroup == "upload"',
+            'tool_spec': {'cores': 1, 'mem': 0.3, 'gpus': 0, 'runner': 'condor', 'rank': 'GalaxyGroup == "upload"',
                           'requirements': 'GalaxyTraining == false', 'env': {'TEMP': '/data/1/galaxy_db/tmp/'}
                           }
             }
@@ -43,7 +43,7 @@ class TestSpecialTools(unittest.TestCase):
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"', 'request_cpus': '1',
                        'accounting_group_user': '', 'description': '__DATA_FETCH__'},
             'runner': DEFAULT_DESTINATION,
-            'tool_spec': {'mem': 0.3, 'runner': 'condor', 'rank': 'GalaxyGroup == "upload"',
+            'tool_spec': {'cores': 1, 'mem': 0.3, 'gpus': 0, 'runner': 'condor', 'rank': 'GalaxyGroup == "upload"',
                           'requirements': 'GalaxyTraining == false', 'env': {'TEMP': '/data/1/galaxy_db/tmp/'}
                           }
         }
@@ -68,7 +68,7 @@ class TestSpecialTools(unittest.TestCase):
                        'GalaxyTraining == false', 'rank': 'GalaxyGroup == "metadata"', 'request_cpus': '1',
                        'accounting_group_user': '', 'description': '__SET_METADATA__'},
             'runner': DEFAULT_DESTINATION,
-            'tool_spec': {'mem': 0.3, 'runner': 'condor', 'rank': 'GalaxyGroup == "metadata"',
+            'tool_spec': {'cores': 1, 'mem': 0.3, 'gpus': 0, 'runner': 'condor', 'rank': 'GalaxyGroup == "metadata"',
                           'requirements': 'GalaxyTraining == false'}
         }
         tool_id = '__SET_METADATA__'
