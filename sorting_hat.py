@@ -85,6 +85,7 @@ sh_conf = DetailsFromYamlFile(SH_CONFIGURATION_FILENAME)
 DEFAULT_DESTINATION = sh_conf.get('default_destination')
 DEFAULT_TOOL_SPEC = sh_conf.get('default_tool_specification')
 FAST_TURNAROUND = sh_conf.get('fast_turnaround')
+print(FAST_TURNAROUND)
 FDID_PREFIX = sh_conf.get('force_destination_id_prefix')
 SPECIAL_TOOLS = sh_conf.get('special_tools')
 SPECIFICATION_ALLOWED_KEYS = sh_conf.get('allowed_keys', 'destination_specifications')
@@ -393,7 +394,7 @@ def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, ft=FAST
     # This is a special case, we're requiring it for faster feedback / turnaround times.
     # Fast turnaround can be enabled for all the jobs or per single user adding a user role
     # with the label described by 'role_label' key.
-    ft_enabled = ft.get('enabled', False)
+    ft_enabled = ft.get('enabled')
     ft_mode = ft.get('mode')
     ft_role_label = ft.get('role_label')
     ft_requirements = ft.get('requirements')

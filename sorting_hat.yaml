@@ -44,9 +44,9 @@ default_tool_specification:
 # with the custom ClassAd defined in the requirements
 fast_turnaround:
   enabled: False
-  mode: all_jobs  # can be all_jobs/user_roles
+  mode: 'all_jobs'  # can be all_jobs/user_roles
   role_label: 'fast-turnaround'
-  requirements: 'GalaxyGroup  ==  "fast-turnaround"'
+  requirements: 'GalaxyGroup == "fast-turnaround"'
 
 # Some file paths
 file_paths:
