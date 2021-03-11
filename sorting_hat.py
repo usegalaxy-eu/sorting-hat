@@ -423,7 +423,8 @@ def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
 
     try:
         env, params, runner, spec, tags = _gateway(tool_id, user_preferences, user_roles, user_id, email,
-                                                   SPECIAL_TOOLS, memory_scale=memory_scale)
+                                                   ft=FAST_TURNAROUND, special_tools=SPECIAL_TOOLS,
+                                                   memory_scale=memory_scale)
     except Exception as e:
         return JobMappingException(str(e))
 

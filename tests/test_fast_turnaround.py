@@ -8,7 +8,7 @@ class TestFastTurnaround(unittest.TestCase):
 
     def test_ft_enabled_requirements(self):
         """
-        Check if enabling FastTurnaround requirements are properly updated
+        Check if enabling FastTurnaround, requirements are properly updated
         """
         _tool_label = '_unittest_tool'
         _dest_label = 'condor_unittest_destination'
@@ -40,3 +40,39 @@ class TestFastTurnaround(unittest.TestCase):
         _, params, _, _, _ = _gateway(tool_id, '', '', '', '', ft=ft)
 
         self.assertEqual(params['requirements'], result['requirements'])
+
+    def test_ft_disabled_requirements(self):
+        """
+        Check if disabling FastTurnaround, requirements are not updated
+        """
+        _tool_label = '_unittest_tool'
+        _dest_label = 'condor_unittest_destination'
+
+        _tool_spec = {_tool_label:
+                          {
+                              'runner': _dest_label
+                          }
+        }
+        _dest_spec = {_dest_label:
+          {
+            'env': { },
+            'params':
+              {
+                'requirements': 'GalaxyGroup == "to_be_updated"'
+              }
+          }
+        }
+
+        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        ft = copy.deepcopy(FAST_TURNAROUND)
+        ft['enabled'] = False
+        ft['mode'] = 'all_jobs'
+
+        tool_id = _tool_label
+
+        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        _, params_b, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        _, params_g, _, _, _ = _gateway(tool_id, '', '', '', '', ft=ft)
+
+        self.assertEqual(params_b['requirements'], params_g['requirements'])
