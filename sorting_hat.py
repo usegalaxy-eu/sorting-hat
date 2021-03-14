@@ -204,7 +204,7 @@ def _get_limits(destination, dest_spec=SPECIFICATIONS, default_cores=1, default_
     return limits
 
 
-def _weighted_random_sampling(destinations, dest_spec=SPECIFICATIONS):
+def _weighted_random_sampling(destinations, dest_spec):
     bunch = []
     for d in destinations:
         weight = dest_spec[d].get('nodes', 1)
@@ -213,12 +213,12 @@ def _weighted_random_sampling(destinations, dest_spec=SPECIFICATIONS):
     return destination
 
 
-def build_spec(tool_spec, dest_spec=SPECIFICATIONS, runner_hint=None):
+def build_spec(tool_spec, dest_spec, runner_hint=None):
     destination = runner_hint if runner_hint else tool_spec.get('runner')
 
     if destination not in dest_spec:
         if destination in JOINT_DESTINATIONS:
-            destination = _weighted_random_sampling(JOINT_DESTINATIONS[destination])
+            destination = _weighted_random_sampling(JOINT_DESTINATIONS[destination], dest_spec)
         else:
             destination = DEFAULT_DESTINATION
 
@@ -368,8 +368,10 @@ def _finalize_tool_spec(tool_id, tools_spec, user_roles, special_tools=SPECIAL_T
     return tool_spec
 
 
-def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, ft=FAST_TURNAROUND,
-             special_tools=SPECIAL_TOOLS, tools_spec=TOOL_DESTINATIONS, memory_scale=1.0):
+def _gateway(tool_id, user_preferences, user_roles, user_id, user_email,
+             ft=FAST_TURNAROUND, special_tools=SPECIAL_TOOLS,
+             tools_spec=TOOL_DESTINATIONS, dest_spec=SPECIFICATIONS,
+             memory_scale=1.0):
     tool_spec = _finalize_tool_spec(tool_id, tools_spec, user_roles, memory_scale=memory_scale)
 
     # Now build the full spec
@@ -385,7 +387,7 @@ def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, ft=FAST
     # Ensure that this tool is permitted to run, otherwise, throw an exception.
     assert_permissions(tool_spec, user_email, user_roles)
 
-    env, params, runner, tags = build_spec(tool_spec, runner_hint=runner_hint)
+    env, params, runner, tags = build_spec(tool_spec, dest_spec, runner_hint=runner_hint)
     params['accounting_group_user'] = str(user_id)
     params['description'] = get_tool_id(tool_id)
 

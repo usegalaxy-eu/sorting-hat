@@ -54,6 +54,6 @@ class TestFastTurnaround(unittest.TestCase):
 
         tool_spec = _finalize_tool_spec(self.tool_id, self.td, [])
         _, params_b, _, _ = build_spec(tool_spec, dest_spec=self.sp)
-        _, params_g, _, _, _ = _gateway(self.tool_id, '', '', '', '', ft=self.ft, tools_spec=self.td)
+        _, params_g, _, _, _ = _gateway(self.tool_id, '', '', '', '', ft=self.ft, dest_spec=self.sp, tools_spec=self.td)
 
         self.assertEqual(params_b['requirements'], params_g['requirements'])
