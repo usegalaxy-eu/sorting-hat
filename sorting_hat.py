@@ -305,6 +305,9 @@ def reroute_to_dedicated(user_roles):
     """
     # Collect their possible training roles identifiers.
     training_roles = [role for role in user_roles if role.startswith('training-')]
+
+    # Some particular events can have contemporary trainings (like GCC) and we want to collect
+    # them under the same label (e.g. to assign the the same computing cluster)
     if any([role.startswith('training-gcc-') for role in training_roles]):
         training_roles.append('training-gcc')
 
