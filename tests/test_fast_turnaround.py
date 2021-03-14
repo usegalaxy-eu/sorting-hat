@@ -1,15 +1,15 @@
 import unittest
-import copy
 
+from copy import deepcopy
 from sorting_hat import _gateway, build_spec, _finalize_tool_spec, FAST_TURNAROUND, TOOL_DESTINATIONS, SPECIFICATIONS
 
 
 class TestFastTurnaround(unittest.TestCase):
+    def setUp(self):
+        self.ft = deepcopy(FAST_TURNAROUND)
+        self.td = deepcopy(TOOL_DESTINATIONS)
+        self.sp = deepcopy(SPECIFICATIONS)
 
-    def test_ft_enabled_requirements(self):
-        """
-        Check if enabling FastTurnaround, requirements are properly updated
-        """
         _tool_label = '_unittest_tool'
         _dest_label = 'condor_unittest_destination'
 
@@ -28,16 +28,20 @@ class TestFastTurnaround(unittest.TestCase):
           }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
-        ft = copy.deepcopy(FAST_TURNAROUND)
-        ft['enabled'] = True
-        ft['mode'] = 'all_jobs'
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
+        self.tool_id = _tool_label
 
-        result = {'requirements': FAST_TURNAROUND.get('requirements')}
-        tool_id = _tool_label
+    def test_ft_enabled_requirements(self):
+        """
+        Check if enabling FastTurnaround, requirements are properly updated
+        """
+        self.ft['enabled'] = True
+        self.ft['mode'] = 'all_jobs'
 
-        _, params, _, _, _ = _gateway(tool_id, '', '', '', '', ft=ft)
+        result = {'requirements': self.ft.get('requirements')}
+
+        _, params, _, _, _ = _gateway(self.tool_id, '', '', '', '', ft=self.ft)
 
         self.assertEqual(params['requirements'], result['requirements'])
 
@@ -45,34 +49,11 @@ class TestFastTurnaround(unittest.TestCase):
         """
         Check if disabling FastTurnaround, requirements are not updated
         """
-        _tool_label = '_unittest_tool'
-        _dest_label = 'condor_unittest_destination'
+        self.ft['enabled'] = False
+        self.ft['mode'] = 'all_jobs'
 
-        _tool_spec = {_tool_label:
-                          {
-                              'runner': _dest_label
-                          }
-        }
-        _dest_spec = {_dest_label:
-          {
-            'env': { },
-            'params':
-              {
-                'requirements': 'GalaxyGroup == "to_be_updated"'
-              }
-          }
-        }
-
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
-        ft = copy.deepcopy(FAST_TURNAROUND)
-        ft['enabled'] = False
-        ft['mode'] = 'all_jobs'
-
-        tool_id = _tool_label
-
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, params_b, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
-        _, params_g, _, _, _ = _gateway(tool_id, '', '', '', '', ft=ft)
+        tool_spec = _finalize_tool_spec(self.tool_id, self.td, [])
+        _, params_b, _, _ = build_spec(tool_spec, dest_spec=self.sp)
+        _, params_g, _, _, _ = _gateway(self.tool_id, '', '', '', '', ft=self.ft, tools_spec=self.td)
 
         self.assertEqual(params_b['requirements'], params_g['requirements'])

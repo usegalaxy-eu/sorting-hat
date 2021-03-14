@@ -41,10 +41,10 @@ If you're evil and insecure
 
 --hexylena
 """
-import copy
 import os
 import yaml
 
+from copy import deepcopy
 from galaxy.jobs import JobDestination
 from galaxy.jobs.mapper import JobMappingException
 from random import sample
@@ -325,11 +325,11 @@ def reroute_to_dedicated(user_roles):
     }
 
 
-def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_spec=TOOL_DESTINATIONS, memory_scale=1.0):
+def _finalize_tool_spec(tool_id, tools_spec, user_roles, special_tools=SPECIAL_TOOLS, memory_scale=1.0):
     # Find the 'short' tool ID which is what is used in the .yaml file.
     tool = get_tool_id(tool_id)
     # Pull the tool specification (i.e. job destination configuration for this tool)
-    tool_spec = copy.deepcopy(tools_spec.get(tool, {}))
+    tool_spec = deepcopy(tools_spec.get(tool, {}))
     # Update the tool specification with any training resources that are available
     tool_spec.update(reroute_to_dedicated(user_roles))
 
@@ -349,7 +349,7 @@ def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_
             'rank': 'GalaxyGroup == "upload"',
             'requirements': 'GalaxyTraining == false',
             'env': {
-                'TEMP': '/data/1/galaxy_db/tmp/'
+                'TEMP': '/data/1/galaxy_db/tmp'
             }
         }
     elif tool_id in special_tools.get('metadata'):
@@ -369,8 +369,8 @@ def _finalize_tool_spec(tool_id, user_roles, special_tools=SPECIAL_TOOLS, tools_
 
 
 def _gateway(tool_id, user_preferences, user_roles, user_id, user_email, ft=FAST_TURNAROUND,
-             special_tools=SPECIAL_TOOLS, memory_scale=1.0):
-    tool_spec = _finalize_tool_spec(tool_id, user_roles, memory_scale=memory_scale)
+             special_tools=SPECIAL_TOOLS, tools_spec=TOOL_DESTINATIONS, memory_scale=1.0):
+    tool_spec = _finalize_tool_spec(tool_id, tools_spec, user_roles, memory_scale=memory_scale)
 
     # Now build the full spec
 

@@ -1,9 +1,13 @@
 import unittest
 
+from copy import deepcopy
 from sorting_hat import build_spec, _finalize_tool_spec, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
 class TestBuildSpecEnv(unittest.TestCase):
+    def setUp(self):
+        self.td = deepcopy(TOOL_DESTINATIONS)
+        self.sp = deepcopy(SPECIFICATIONS)
 
     def test_pass_two_env(self):
         """
@@ -20,12 +24,12 @@ class TestBuildSpecEnv(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = [{'name': 'name1', 'value': 'value1'}, {'name': 'name2', 'value': 'value2'}]
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
         env, params, runner, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         d1 = {n['name']: n['value'] for n in env if n in ['name1', 'name2']}
@@ -61,14 +65,14 @@ class TestBuildSpecEnv(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = [{'name': 'name1', 'value': 'value1'}, {'name': 'name2', 'value': 'value2'}]
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        env, params, runner, tags = build_spec(tool_spec, dest_spec=self.sp)
 
         d1 = {n['name']: n['value'] for n in env}
         d2 = {n['name']: n['value'] for n in result}
@@ -104,14 +108,14 @@ class TestBuildSpecEnv(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = [{'name': 'name2', 'value': 'value2'}, {'name': 'name1', 'value': 'value1'}]
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        env, params, runner, tags = build_spec(tool_spec, dest_spec=self.sp)
 
         d1 = {n['name']: n['value'] for n in env}
         d2 = {n['name']: n['value'] for n in result}
@@ -148,14 +152,14 @@ class TestBuildSpecEnv(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = [{'name': 'name3', 'value': 'value3'}, {'name': 'name1', 'value': 'value1'}, {'name': 'name2', 'value': 'value2'}]
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        env, params, runner, tags = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertEqual(len(env), len(result))
         d1 = {n['name']: n['value'] for n in env}

@@ -1,9 +1,13 @@
 import unittest
 
+from copy import deepcopy
 from sorting_hat import build_spec, _finalize_tool_spec, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
 class TestBuildSpecParam(unittest.TestCase):
+    def setUp(self):
+        self.td = deepcopy(TOOL_DESTINATIONS)
+        self.sp = deepcopy(SPECIFICATIONS)
 
     def test_pass_param_cores_with_default_destination(self):
         """
@@ -18,7 +22,7 @@ class TestBuildSpecParam(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = {
                 'params': {'request_cpus': '3'}
@@ -26,8 +30,8 @@ class TestBuildSpecParam(unittest.TestCase):
         
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        _, params, _, _ = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertEqual(params['request_cpus'], result['params']['request_cpus'])
 
@@ -47,7 +51,7 @@ class TestBuildSpecParam(unittest.TestCase):
             }
             
             tool_id = tool_label
-            tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+            tool_spec = _finalize_tool_spec(tool_id, TOOL_DESTINATIONS, [])
             _, params, dest, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
             if dest.startswith('remote_cluster_mq'):
@@ -70,10 +74,10 @@ class TestBuildSpecParam(unittest.TestCase):
                     'runner':  dest,
                 }
             }
-            TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+            self.td[_tool_label] = _tool_spec[_tool_label]
 
             tool_id = _tool_label
-            tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+            tool_spec = _finalize_tool_spec(tool_id, self.td, [])
             _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
             if dest.startswith('remote_cluster_mq'):
@@ -93,7 +97,7 @@ class TestBuildSpecParam(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = {
                 'params': {'request_memory': '32.0G'}
@@ -101,7 +105,7 @@ class TestBuildSpecParam(unittest.TestCase):
         
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
         _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
 
         self.assertEqual(params['request_memory'], result['params']['request_memory'])
@@ -119,7 +123,7 @@ class TestBuildSpecParam(unittest.TestCase):
                     'docker_run_extra_arguments': 'extra argument',
                 }   
             }
-            TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+            self.td[_tool_label] = _tool_spec[_tool_label]
             result = {
                 'params': {
                     'docker_set_user': '1000',
@@ -128,7 +132,7 @@ class TestBuildSpecParam(unittest.TestCase):
             }
 
             tool_id = _tool_label
-            tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+            tool_spec = _finalize_tool_spec(tool_id, self.td, [])
             _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
         
             if 'docker_enabled' in params and params['docker_enabled']:
@@ -149,8 +153,6 @@ class TestBuildSpecParam(unittest.TestCase):
                 'runner': _dest_label
             }
         }
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-
         _dest_spec = {_dest_label:
             {
                 'env': {},
@@ -165,7 +167,9 @@ class TestBuildSpecParam(unittest.TestCase):
                     }
             }
         }
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
         result = {
                 'params': {
                     'subparam': [
@@ -177,8 +181,8 @@ class TestBuildSpecParam(unittest.TestCase):
                 }
         }
         tool_id = _tool_label
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        _, params, _, _ = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertIn('subparam', params)
         self.assertIsInstance(params['subparam'], list)

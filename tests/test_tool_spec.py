@@ -1,9 +1,12 @@
 import unittest
 
+from copy import deepcopy
 from sorting_hat import _finalize_tool_spec, TOOL_DESTINATIONS, DEFAULT_TOOL_SPEC
 
 
 class TestToolSpec(unittest.TestCase):
+    def setUp(self):
+        self.td = deepcopy(TOOL_DESTINATIONS)
 
     def test_default_values_setup(self):
         """
@@ -13,7 +16,7 @@ class TestToolSpec(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _tool_spec = {_tool_label: {}}
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = {
             'cores': DEFAULT_TOOL_SPEC['cores'],
@@ -24,7 +27,7 @@ class TestToolSpec(unittest.TestCase):
         }
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, '')
 
         for i in result:
             if i in ['cores', 'gpus']:
@@ -46,7 +49,7 @@ class TestToolSpec(unittest.TestCase):
         for tool_id in TOOL_DESTINATIONS:
             result = TOOL_DESTINATIONS[tool_id]
 
-            tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+            tool_spec = _finalize_tool_spec(tool_id, TOOL_DESTINATIONS, [])
 
             for i in result:
                 if i in ['cores', 'gpus']:

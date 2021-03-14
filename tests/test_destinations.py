@@ -1,10 +1,13 @@
 import unittest
 
+from copy import deepcopy
 from sorting_hat import _finalize_tool_spec, name_it, DEFAULT_DESTINATION, \
     SPECIFICATIONS, SPECIFICATION_PATH, TOOL_DESTINATIONS, FDID_PREFIX
 
 
 class TestDestinations(unittest.TestCase):
+    def setUp(self):
+        self.td = deepcopy(TOOL_DESTINATIONS)
 
     def test_default_destination(self):
         """
@@ -32,12 +35,12 @@ class TestDestinations(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = FDID_PREFIX + DEFAULT_DESTINATION
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
         name = name_it(tool_spec)
 
         self.assertEqual(name, result)
@@ -56,12 +59,12 @@ class TestDestinations(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = FDID_PREFIX + _dest_label
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
         name = name_it(tool_spec)
 
         self.assertEqual(name, result)
@@ -79,12 +82,12 @@ class TestDestinations(unittest.TestCase):
 
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = '1cores_4.0G'
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
         name = name_it(tool_spec)
 
         self.assertEqual(name, result)
@@ -103,7 +106,7 @@ class TestDestinations(unittest.TestCase):
         result = '1cores_4.0G'
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
         name = name_it(tool_spec)
 
         self.assertEqual(name, result)
@@ -122,12 +125,12 @@ class TestDestinations(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = '1cores_4.0G'
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
         name = name_it(tool_spec)
 
         self.assertEqual(name, result)

@@ -1,9 +1,12 @@
 import unittest
 
+from copy import deepcopy
 from sorting_hat import _get_limits, _finalize_tool_spec, build_spec, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
 class TestGetLimits(unittest.TestCase):
+    def setUp(self):
+        self.sp = deepcopy(SPECIFICATIONS)
 
     def test_defaults(self):
         """
@@ -11,12 +14,12 @@ class TestGetLimits(unittest.TestCase):
         """
         _dest_label = '_unittest_destination'
         _dest_spec = {_dest_label: {}}
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = {'cores': 1, 'mem': 4, 'gpus': 0}
         destination = _dest_label
 
-        limits = _get_limits(destination, dest_spec=SPECIFICATIONS)
+        limits = _get_limits(destination, dest_spec=self.sp)
 
         self.assertIsInstance(limits['cores'], int)
         self.assertIsInstance(limits['mem'], int)
@@ -37,12 +40,12 @@ class TestGetLimits(unittest.TestCase):
                     }
             }
         }
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = {'cores': 40, 'mem': 1000, 'gpus': 0}
         destination = _dest_label
 
-        limits = _get_limits(destination, dest_spec=SPECIFICATIONS)
+        limits = _get_limits(destination, dest_spec=self.sp)
 
         self.assertIsInstance(limits['cores'], int)
         self.assertIsInstance(limits['mem'], int)
@@ -62,12 +65,12 @@ class TestGetLimits(unittest.TestCase):
                     }
             }
         }
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = {'cores': 1, 'mem': 4, 'gpus': 10}
         destination = _dest_label
 
-        limits = _get_limits(destination, dest_spec=SPECIFICATIONS)
+        limits = _get_limits(destination, dest_spec=self.sp)
 
         self.assertIsInstance(limits['cores'], int)
         self.assertIsInstance(limits['mem'], int)
@@ -76,6 +79,9 @@ class TestGetLimits(unittest.TestCase):
 
 
 class TestLimits(unittest.TestCase):
+    def setUp(self):
+        self.td = deepcopy(TOOL_DESTINATIONS)
+        self.sp = deepcopy(SPECIFICATIONS)
 
     def test_boundaries(self):
         """
@@ -108,14 +114,14 @@ class TestLimits(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = {'request_cpus': '10', 'request_memory': '10G'}
         tool_id = '_unittest_tool'
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        env, params, runner, tags = build_spec(tool_spec, dest_spec=self.sp)
 
         for k, v in result.items():
             self.assertIn(k, params)
@@ -156,14 +162,14 @@ class TestLimits(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = {'request_cpus': '10', 'request_memory': '10G', 'request_gpus': '10'}
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        env, params, runner, tags = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        env, params, runner, tags = build_spec(tool_spec, dest_spec=self.sp)
 
         for k, v in result.items():
             self.assertIn(k, params)

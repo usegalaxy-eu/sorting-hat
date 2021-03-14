@@ -1,9 +1,13 @@
 import unittest
 
+from copy import deepcopy
 from sorting_hat import build_spec, _finalize_tool_spec, DEFAULT_DESTINATION, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
 class TestBuildSpecRunner(unittest.TestCase):
+    def setUp(self):
+        self.td = deepcopy(TOOL_DESTINATIONS)
+        self.sp = deepcopy(SPECIFICATIONS)
 
     def test_runner_undefined(self):
         """
@@ -24,14 +28,14 @@ class TestBuildSpecRunner(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = DEFAULT_DESTINATION
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertEqual(runner, result)
 
@@ -59,14 +63,14 @@ class TestBuildSpecRunner(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
-        SPECIFICATIONS[_dest_label] = _dest_spec[_dest_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
 
         result = 'pulsar_eu_destination'
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertEqual(runner, result)
 
@@ -81,13 +85,13 @@ class TestBuildSpecRunner(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = DEFAULT_DESTINATION
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertEqual(runner, result)
 
@@ -115,13 +119,13 @@ class TestBuildSpecRunner(unittest.TestCase):
             }
         }
 
-        TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
+        self.td[_tool_label] = _tool_spec[_tool_label]
         
         result = ['pulsar_eu_de03', 'pulsar_eu_uk01']
         tool_id = _tool_label
 
-        tool_spec = _finalize_tool_spec(tool_id, '', tools_spec=TOOL_DESTINATIONS)
-        _, _, runner, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+        tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+        _, _, runner, _ = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertIn(runner, result)
         
