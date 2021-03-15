@@ -135,6 +135,20 @@ class TestDestinations(unittest.TestCase):
 
         self.assertEqual(name, result)
 
+    def test_condor_destination_has_default_requirements(self):
+        """
+        Usegalaxy.eu condor destinations need to have a specific requirements,
+        unless otherwise specified.
+        requirements: 'GalaxyGroup == "compute"'
+        """
+        for label, v in SPECIFICATIONS.items():
+            if 'condor' in label:
+                key = 'requirements'
+                container = v.get('params')
+                message = "'requirements' missing in {} destination".format(label)
+                self.assertIn(key, container, message)
+                self.assertEqual(v.get('params').get('requirements'), 'GalaxyGroup == "compute"')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -31,9 +31,7 @@ class TestSpecialTools(unittest.TestCase):
                                       'OPENBLAS_NUM_THREADS': 4, 'MKL_NUM_THREADS': 4,
                                       'VECLIB_MAXIMUM_THREADS': 4, 'NUMEXPR_NUM_THREADS': 4,
                                       'NUMBA_NUM_THREADS': 4},
-                              'requirements': 'GalaxyGroup == "compute"',
                               'mem': 4.0,
-                              'force_destination_id': False,
                               'gpus': 0,
                               'runner': DEFAULT_DESTINATION}
                 }

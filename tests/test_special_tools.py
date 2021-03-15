@@ -20,7 +20,9 @@ class TestSpecialTools(unittest.TestCase):
             'runner': DEFAULT_DESTINATION,
             'tool_spec': {'cores': 1, 'mem': 0.3, 'gpus': 0, 'runner': 'condor',
                           'env': {'TEMP': '/data/1/galaxy_db/tmp'},
-                          'requirements': 'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
+                          'params': {'rank': 'GalaxyGroup == "upload"',
+                                     'requirements': 'GalaxyTraining == false'
+                                     },
                           }
             }
         tool_id = 'upload1'
@@ -47,7 +49,9 @@ class TestSpecialTools(unittest.TestCase):
             'runner': DEFAULT_DESTINATION,
             'tool_spec': {'cores': 1, 'mem': 0.3, 'gpus': 0, 'runner': 'condor',
                           'env': {'TEMP': '/data/1/galaxy_db/tmp'},
-                          'requirements': 'GalaxyTraining == false', 'rank': 'GalaxyGroup == "upload"',
+                          'params': {'rank': 'GalaxyGroup == "upload"',
+                                     'requirements': 'GalaxyTraining == false'
+                                     },
                           }
         }
         tool_id = '__DATA_FETCH__'
@@ -72,7 +76,9 @@ class TestSpecialTools(unittest.TestCase):
                        'accounting_group_user': '', 'description': '__SET_METADATA__'},
             'runner': DEFAULT_DESTINATION,
             'tool_spec': {'cores': 1, 'mem': 0.3, 'gpus': 0, 'runner': 'condor',
-                          'requirements': 'GalaxyTraining == false', 'rank': 'GalaxyGroup == "metadata"'
+                          'params': {'rank': 'GalaxyGroup == "metadata"',
+                                     'requirements': 'GalaxyTraining == false',
+                                     }
                           }
         }
         tool_id = '__SET_METADATA__'
@@ -89,14 +95,15 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if called without specifications
         """
         result = {
-            'tool_spec': {'cores': 1, 'mem': 4.0, 'gpus': 0, 'force_destination_id': False, 'runner': 'condor',
-                          'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'}
+            'params': {'priority': '-128', 'request_cpus': '1', 'request_memory': '4.0G', 'tmp_dir': 'True',
+                       'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"',
+                       'accounting_group_user': '', 'description': 'interactive_tool_unittest_tool'}
         }
         tool_id = 'interactive_tool_unittest_tool'
 
-        env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
+        _, params, _, _, _ = _gateway(tool_id, '', '', '', '')
 
-        self.assertEqual(tool_spec, result['tool_spec'])
+        self.assertEqual(params, result['params'])
 
 
 if __name__ == '__main__':

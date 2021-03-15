@@ -22,7 +22,6 @@ class TestToolSpec(unittest.TestCase):
             'cores': DEFAULT_TOOL_SPEC['cores'],
             'mem': DEFAULT_TOOL_SPEC['mem'],
             'gpus': DEFAULT_TOOL_SPEC['gpus'],
-            'force_destination_id': DEFAULT_TOOL_SPEC['force_destination_id'],
             'runner': DEFAULT_TOOL_SPEC['runner']
         }
         tool_id = _tool_label
@@ -34,8 +33,6 @@ class TestToolSpec(unittest.TestCase):
                 self.assertIsInstance(tool_spec[i], int)
             elif i == 'mem':
                 self.assertIsInstance(tool_spec[i], float)
-            elif i == 'force_destination_id':
-                self.assertIsInstance(tool_spec[i], bool)
             elif i == 'runner':
                 self.assertIsInstance(tool_spec[i], str)
             self.assertEqual(tool_spec[i], result[i],

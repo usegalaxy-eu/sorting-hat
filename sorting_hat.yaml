@@ -36,7 +36,6 @@ default_tool_specification:
   cores: 1
   mem: 4.0
   gpus: 0
-  force_destination_id: False
   runner: *dd
 
 # Enable this if you need a faster feedback / turnaround times.

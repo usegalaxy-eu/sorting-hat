@@ -77,7 +77,6 @@ class DetailsFromYamlFile:
         return os.path.join(os.path.dirname(os.path.realpath(__file__)), self.get('file_paths', label))
 
 
-
 # Sorting Hat configuration details are defined in this file
 SH_CONFIGURATION_FILENAME = 'sorting_hat.yaml'
 
@@ -87,7 +86,6 @@ DEFAULT_TOOL_SPEC = sh_conf.get('default_tool_specification')
 FAST_TURNAROUND = sh_conf.get('fast_turnaround')
 FDID_PREFIX = sh_conf.get('force_destination_id_prefix')
 SPECIAL_TOOLS = sh_conf.get('special_tools')
-
 
 # The default / base specification for the different environments.
 SPECIFICATION_PATH = sh_conf.get_path('destination_specifications')
@@ -255,18 +253,8 @@ def build_spec(tool_spec, dest_spec, runner_hint=None):
             if k.startswith('docker'):
                 params[k] = tool_spec.get(k, '')
 
-    if 'condor' in destination:
-        if 'requirements' in tool_spec:
-            params['requirements'] = tool_spec['requirements']
-
-        if 'rank' in tool_spec:
-            params['rank'] = tool_spec['rank']
-
-        if '+Group' in tool_spec:
-            params['+Group'] = tool_spec['+Group']
-
     if 'remote_cluster_mq' in destination:
-        # specific for condor cluster
+        # specific for remote condor cluster
         if tool_gpus == 0 and 'submit_request_gpus' in params:
             del params['submit_request_gpus']
 
@@ -311,24 +299,23 @@ def reroute_to_dedicated(user_roles):
     if any([role.startswith('training-gcc-') for role in training_roles]):
         training_roles.append('training-gcc')
 
-    # No changes to specification.
-    if len(training_roles) == 0:
-        # Require that the jobs do not run on these dedicated training machines.
-        return {'requirements': 'GalaxyGroup == "compute"'}
+    if len(training_roles) > 0:
+        # The user does have one or more training roles.
+        # So we must construct a requirement / ranking expression.
+        training_expr = " || ".join(['(GalaxyGroup == "%s")' % role for role in training_roles])
+        training_labels = '"'+", ".join(['%s' % role for role in training_roles])+'"'
+        return {
+            # We require that it does not run on machines that the user is not in the role for.
+            # We then rank based on what they *do* have the roles for.
+            'params': {
+                'requirements': '(GalaxyGroup == "compute") || (%s)' % training_expr,
+                '+Group': training_labels,
+            }
+        }
+    return {}
 
-    # Otherwise, the user does have one or more training roles.
-    # So we must construct a requirement / ranking expression.
-    training_expr = " || ".join(['(GalaxyGroup == "%s")' % role for role in training_roles])
-    training_labels = '"'+", ".join(['%s' % role for role in training_roles])+'"'
-    return {
-        # We require that it does not run on machines that the user is not in the role for.
-        'requirements': '(GalaxyGroup == "compute") || (%s)' % training_expr,
-        # We then rank based on what they *do* have the roles for
-        '+Group': training_labels,
-    }
 
-
-def _finalize_tool_spec(tool_id, tools_spec, user_roles, special_tools=SPECIAL_TOOLS, memory_scale=1.0):
+def _finalize_tool_spec(tool_id, tools_spec, user_roles, memory_scale=1.0):
     # Find the 'short' tool ID which is what is used in the .yaml file.
     tool = get_tool_id(tool_id)
     # Pull the tool specification (i.e. job destination configuration for this tool)
@@ -342,31 +329,11 @@ def _finalize_tool_spec(tool_id, tools_spec, user_roles, special_tools=SPECIAL_T
 
     tool_spec['mem'] *= memory_scale
 
-    # Only few tools are truly special.
-    if tool_id in special_tools.get('upload'):
-        tool_spec = {
-            'cores': 1,
-            'mem': 0.3,
-            'gpus': 0,
-            'runner': 'condor',
-            'rank': 'GalaxyGroup == "upload"',
-            'requirements': 'GalaxyTraining == false',
-            'env': {
-                'TEMP': '/data/1/galaxy_db/tmp'
-            }
-        }
-    elif tool_id in special_tools.get('metadata'):
-        tool_spec = {
-            'cores': 1,
-            'mem': 0.3,
-            'gpus': 0,
-            'runner': 'condor',
-            'rank': 'GalaxyGroup == "metadata"',
-            'requirements': 'GalaxyTraining == false',
-        }
     # These we're running on a specific nodes subset
-    elif 'interactive_tool_' in tool_id:
-        tool_spec['requirements'] = 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
+    if 'interactive_tool_' in tool_id:
+        tool_spec['params'] = {
+           'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
+        }
 
     return tool_spec
 
