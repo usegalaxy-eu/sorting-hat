@@ -57,10 +57,7 @@ file_paths:
 force_destination_id_prefix: 'sh_fdid_'
 
 special_tools:
-  upload:
-    - 'upload1'
-    - '__DATA_FETCH__'
-  metadata:
-    - '__SET_METADATA__'
-  interactive:
-    - 'interactive_tool_'
+  'upload1': 'skip_runner_hint'
+  '__DATA_FETCH__': 'skip_runner_hint'
+  '__SET_METADATA__': 'skip_runner_hint'
+  'interactive_tool_': 'skip_runner_hint'

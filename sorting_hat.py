@@ -347,8 +347,10 @@ def _gateway(tool_id, user_preferences, user_roles, user_id, user_email,
     # Now build the full spec
 
     # Use this hint to force a destination (e.g. defined from the user's preferences)
+    # but not for all tools
     runner_hint = None
-    if tool_id not in special_tools.get('upload') or tool_id not in special_tools.get('metadata'):
+    tools_to_skip = [k for k, v in special_tools.items() if v == 'skip_runner_hint']
+    if tool_id not in tools_to_skip:
         for data_item in user_preferences:
             if "distributed_compute|remote_resources" in data_item:
                 if user_preferences[data_item] != "None":
