@@ -329,12 +329,6 @@ def _finalize_tool_spec(tool_id, tools_spec, user_roles, memory_scale=1.0):
 
     tool_spec['mem'] *= memory_scale
 
-    # These we're running on a specific nodes subset
-    if 'interactive_tool_' in tool_id:
-        tool_spec['params'] = {
-           'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
-        }
-
     return tool_spec
 
 

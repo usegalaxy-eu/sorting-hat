@@ -54,19 +54,6 @@ condor_singularity_with_conda:
         resolve_dependencies: true
         identifier: '/cvmfs/singularity.galaxyproject.org/all/centos:8.3.2011'
 
-remote_cluster_mq_cz:
-  limits:
-    cores: 16
-    mem: 31
-  env: {}
-  params:
-    priority: -{PRIORITY}
-    request_cpus: '{PARALLELISATION}'
-    request_memory: '{MEMORY}'
-    jobs_directory: '/storage/brno11-elixir/home/galaxyeu/galaxy-staging/'
-    dependency_resolution: 'remote'
-    submit_user: 'galaxy'
-
 condor_docker_ie:
   limits:
     cores: 10
@@ -76,7 +63,7 @@ condor_docker_ie:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
     request_memory: '{MEMORY}'
-    requirements: 'GalaxyGroup == "compute"'
+    requirements: 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
     docker_enabled: true
     # can and should be made stricter at some point
     docker_volumes: '/data/dnb01/galaxy_db/:ro,/data/dnb02/galaxy_db/:rw,/data/0/galaxy_import/galaxy_user_data/:ro,/data/1/galaxy_import/galaxy_user_data/:ro,/data/2/galaxy_db/:ro,/data/3/galaxy_db/:ro,/data/4/galaxy_db/:ro,/data/5/galaxy_import/galaxy_user_data/:ro,/data/6/galaxy_db/:ro,/data/7/galaxy_db/:ro,$galaxy_root:ro,$tool_directory:ro,$working_directory:rw,$job_directory:rw,/data/db/:ro'
@@ -97,7 +84,7 @@ condor_docker_ie_interactive:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
     request_memory: '{MEMORY}'
-    requirements: 'GalaxyGroup == "compute"'
+    requirements: 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
     docker_enabled: true
     # can and should be made stricter at some point
     docker_volumes: '$working_directory:rw,$job_directory:rw,$tool_directory:ro'
@@ -117,7 +104,7 @@ condor_docker:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
     request_memory: '{MEMORY}'
-    requirements: 'GalaxyGroup == "compute"'
+    requirements: 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
     docker_enabled: true
     # can and should be made stricter at some point
     docker_volumes: '/data/dnb01/galaxy_db/:ro,/data/dnb02/galaxy_db/:rw,/data/0/galaxy_import/galaxy_user_data/:ro,/data/1/galaxy_import/galaxy_user_data/:ro,/data/2/galaxy_db/:ro,/data/3/galaxy_db/:ro,/data/4/galaxy_db/:ro,/data/5/galaxy_import/galaxy_user_data/:ro,/data/6/galaxy_db/:ro,/data/7/galaxy_db/:ro,$galaxy_root:ro,$tool_directory:ro,$working_directory:rw,$job_directory:rw,/data/db/:ro'
@@ -128,7 +115,6 @@ condor_docker:
     docker_set_user: ''
     tmp_dir: 'True'
 
-
 condor_docker_interactive:
   limits:
     cores: 16
@@ -138,7 +124,7 @@ condor_docker_interactive:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
     request_memory: '{MEMORY}'
-    requirements: 'GalaxyGroup == "compute"'
+    requirements: 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
     docker_enabled: true
     # can and should be made stricter at some point
     docker_volumes: '$working_directory:rw,$job_directory:rw,$tool_directory:ro'

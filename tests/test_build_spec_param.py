@@ -116,28 +116,29 @@ class TestBuildSpecParam(unittest.TestCase):
         """
         _tool_label = '_unittest_tool'
         for dest in SPECIFICATIONS:
-            _tool_spec = {_tool_label: 
-                {
-                    'runner': dest,
-                    'docker_set_user': 1000,
-                    'docker_run_extra_arguments': 'extra argument',
-                }   
-            }
-            self.td[_tool_label] = _tool_spec[_tool_label]
-            result = {
-                'params': {
-                    'docker_set_user': '1000',
-                    'docker_run_extra_arguments': 'extra argument',
-                    },
-            }
+            with self.subTest(dest=dest):
+                _tool_spec = {_tool_label:
+                    {
+                        'runner': dest,
+                        'docker_set_user': 1000,
+                        'docker_run_extra_arguments': 'extra argument',
+                    }
+                }
+                self.td[_tool_label] = _tool_spec[_tool_label]
+                result = {
+                    'params': {
+                        'docker_set_user': '1000',
+                        'docker_run_extra_arguments': 'extra argument',
+                        },
+                }
 
-            tool_id = _tool_label
-            tool_spec = _finalize_tool_spec(tool_id, self.td, [])
-            _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
-        
-            if 'docker_enabled' in params and params['docker_enabled']:
-                for i in ['docker_set_user', 'docker_run_extra_arguments']:
-                    self.assertEqual(params[i], result['params'][i])
+                tool_id = _tool_label
+                tool_spec = _finalize_tool_spec(tool_id, self.td, [])
+                _, params, _, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
+
+                if 'docker_enabled' in params and params['docker_enabled'] in ('true', 'True'):
+                    for i in ['docker_set_user', 'docker_run_extra_arguments']:
+                        self.assertEqual(params[i], result['params'][i])
 
     def test_pass_subparam_params(self):
         """

@@ -139,15 +139,33 @@ class TestDestinations(unittest.TestCase):
         """
         Usegalaxy.eu condor destinations need to have a specific requirements,
         unless otherwise specified.
-        requirements: 'GalaxyGroup == "compute"'
+        for condor destination, requirements: 'GalaxyGroup == "compute"'
         """
+        expected = 'GalaxyGroup == "compute"'
         for label, v in SPECIFICATIONS.items():
-            if 'condor' in label:
+            if label.startswith('condor') and "docker" not in label:
                 key = 'requirements'
                 container = v.get('params')
                 message = "'requirements' missing in {} destination".format(label)
-                self.assertIn(key, container, message)
-                self.assertEqual(v.get('params').get('requirements'), 'GalaxyGroup == "compute"')
+                with self.subTest(label=label):
+                    self.assertIn(key, container, message)
+                    self.assertEqual(v.get('params').get('requirements'), expected)
+
+    def test_condor_docker_destination_has_default_requirements(self):
+        """
+        Usegalaxy.eu condor_docker destinations need to have a specific requirements,
+        unless otherwise specified.
+        for condor_docker destination, requirements: 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
+        """
+        expected = 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
+        for label, v in SPECIFICATIONS.items():
+            if label.startswith('condor') and "docker" in label:
+                key = 'requirements'
+                container = v.get('params')
+                message = "'requirements' missing in {} destination".format(label)
+                with self.subTest(label=label):
+                    self.assertIn(key, container, message)
+                    self.assertEqual(v.get('params').get('requirements'), expected)
 
 
 if __name__ == '__main__':

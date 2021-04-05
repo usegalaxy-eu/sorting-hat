@@ -1,9 +1,13 @@
 import unittest
 
-from sorting_hat import _gateway, DEFAULT_DESTINATION
+from copy import deepcopy
+from sorting_hat import _gateway, DEFAULT_DESTINATION, SPECIFICATIONS, TOOL_DESTINATIONS
 
 
 class TestSpecialTools(unittest.TestCase):
+    def setUp(self):
+        self.td = deepcopy(TOOL_DESTINATIONS)
+        self.sp = deepcopy(SPECIFICATIONS)
 
     def test_tool_upload1(self):
         """
@@ -95,13 +99,36 @@ class TestSpecialTools(unittest.TestCase):
         Test that it pass default values if called without specifications
         """
         result = {
-            'params': {'priority': '-128', 'request_cpus': '1', 'request_memory': '4.0G', 'tmp_dir': 'True',
+            'params': {'request_cpus': '1', 'request_memory': '4.0G', 'docker_enabled': 'True',
                        'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"',
                        'accounting_group_user': '', 'description': 'interactive_tool_unittest_tool'}
         }
-        tool_id = 'interactive_tool_unittest_tool'
+        _tool_label = 'interactive_tool_unittest_tool'
+        _dest_label = 'docker_unittest_destination'
 
-        _, params, _, _, _ = _gateway(tool_id, '', '', '', '')
+        _tool_spec = {_tool_label:
+            {
+                'runner': _dest_label
+            }
+        }
+        _dest_spec = {_dest_label:
+            {
+                'env': {},
+                'params':
+                    {
+                        'request_cpus': '{PARALLELISATION}',
+                        'request_memory': '{MEMORY}',
+                        'docker_enabled': True,
+                        'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
+                    }
+            }
+        }
+
+        self.td[_tool_label] = _tool_spec[_tool_label]
+        self.sp[_dest_label] = _dest_spec[_dest_label]
+        tool_id = _tool_label
+
+        _, params, _, _, _ = _gateway(tool_id, '', '', '', '', tools_spec=self.td, dest_spec=self.sp)
 
         self.assertEqual(params, result['params'])
 

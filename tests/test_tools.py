@@ -1,6 +1,6 @@
 import unittest
 
-from sorting_hat import _gateway, DEFAULT_DESTINATION
+from sorting_hat import _gateway, DEFAULT_DESTINATION, TOOL_DESTINATIONS, SPECIFICATIONS
 
 
 class TestSpecialTools(unittest.TestCase):
@@ -45,6 +45,28 @@ class TestSpecialTools(unittest.TestCase):
             self.assertEqual(params, result['params'])
             self.assertEqual(runner, result['runner'])
             self.assertEqual(tool_spec, result['tool_spec'])
+
+    def test_docker_tools(self):
+        """
+        Test tools using local docker destination
+        These tools need to have requirements allowing them to run on docker nodes only
+        """
+        result = {
+            'params': {'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'}
+        }
+        for tool_id, spec in TOOL_DESTINATIONS.items():
+            with self.subTest(tool_id=tool_id):
+                # remove permission to test admin tools also
+                if 'permissions' in spec:
+                    del spec['permissions']
+
+                ts = {tool_id: spec}
+                destination = spec['runner'] if 'runner' in spec else DEFAULT_DESTINATION
+                env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '', tools_spec=ts)
+
+                if 'condor' in destination:
+                    if 'docker_enabled' in params and params['docker_enabled'] in ('true', 'True'):
+                        self.assertEqual(params['requirements'], result['params']['requirements'])
 
 
 if __name__ == '__main__':
