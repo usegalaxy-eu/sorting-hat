@@ -26,7 +26,8 @@ test-eu: galaxy/jobs $(VENV)
 	git checkout -- tool_destinations.yaml
 
 lint: $(VENV)
-	$(BIN)/flake8 --exclude $(VENV) --ignore=E501
+	$(BIN)/flake8 --exclude $(VENV) --count --select=E9,F63,F7,F82 --show-source --statistics
+	$(BIN)/flake8 --exclude $(VENV) --count --exit-zero --ignore=E501 --statistics
 
 clean:
 	find . -name '*.pyc' -delete
@@ -35,7 +36,7 @@ clean:
 
 galaxy/jobs:
 	mkdir -p galaxy/jobs
-	echo "class JobDestination: " > galaxy/jobs/__init__.py
+	echo "class JobDestination:" > galaxy/jobs/__init__.py
 	echo '    """"""' >> galaxy/jobs/__init__.py
 	echo "class JobMappingException:" > galaxy/jobs/mapper.py
 	echo '    """"""' >> galaxy/jobs/mapper.py
