@@ -31,13 +31,12 @@ class TestGetLimits(unittest.TestCase):
         Check that it updates the default values with the destination ones
         """
         _dest_label = '_unittest_destination'
-        _dest_spec = {_dest_label:
-            {
-                'limits':
-                    {
-                        'cores': 40,
-                        'mem': 1000
-                    }
+        _dest_spec = {
+            _dest_label: {
+                'limits': {
+                    'cores': 40,
+                    'mem': 1000
+                }
             }
         }
         self.sp[_dest_label] = _dest_spec[_dest_label]
@@ -57,12 +56,11 @@ class TestGetLimits(unittest.TestCase):
         Check that it updates the default values with the destination ones
         """
         _dest_label = '_unittest_destination'
-        _dest_spec = {_dest_label:
-            {
-                'limits':
-                    {
-                        'gpus': 10
-                    }
+        _dest_spec = {
+            _dest_label: {
+                'limits': {
+                    'gpus': 10
+                }
             }
         }
         self.sp[_dest_label] = _dest_spec[_dest_label]
@@ -90,27 +88,25 @@ class TestLimits(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label,
                 'cores': 100,
                 'mem': 2000,
                 'gpus': 100
             }
         }
-        _dest_spec = {_dest_label:
-            {
-                'limits':
-                    {
-                        'cores': 10,
-                        'mem': 10
-                    },
+        _dest_spec = {
+            _dest_label: {
+                'limits': {
+                    'cores': 10,
+                    'mem': 10
+                },
                 'env': {},
-                'params':
-                    {
-                        'request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}'
-                    }
+                'params': {
+                    'request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}'
+                }
             }
         }
 
@@ -135,8 +131,8 @@ class TestLimits(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label,
                 'cores': 100,
                 'mem': 2000,
@@ -144,21 +140,19 @@ class TestLimits(unittest.TestCase):
             }
         }
         _dest_label = '_unittest_destination'
-        _dest_spec = {_dest_label:
-            {
-                'limits':
-                    {
-                        'cores': 10,
-                        'mem': 10,
-                        'gpus': 10
-                    },
+        _dest_spec = {
+            _dest_label: {
+                'limits': {
+                    'cores': 10,
+                    'mem': 10,
+                    'gpus': 10
+                },
                 'env': {},
-                'params':
-                    {
-                        'request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}',
-                        'request_gpus': '{GPUS}'
-                    }
+                'params': {
+                    'request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}',
+                    'request_gpus': '{GPUS}'
+                }
             }
         }
 

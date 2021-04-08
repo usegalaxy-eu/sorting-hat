@@ -29,8 +29,8 @@ class TestDestinations(unittest.TestCase):
         """
         _tool_label = '_unittest_tool'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'force_destination_id': True
             }
         }
@@ -52,8 +52,8 @@ class TestDestinations(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'force_destination_id': True,
                 'runner': _dest_label
             }
@@ -75,11 +75,10 @@ class TestDestinations(unittest.TestCase):
         """
         _tool_label = '_unittest_tool'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'force_destination_id': False
             }
-
         }
 
         self.td[_tool_label] = _tool_spec[_tool_label]
@@ -98,8 +97,9 @@ class TestDestinations(unittest.TestCase):
         """
         _tool_label = '_unittest_tool'
 
-        _tool_spec = {_tool_label: {}
-                      }
+        _tool_spec = {
+            _tool_label: {}
+        }
 
         TOOL_DESTINATIONS[_tool_label] = _tool_spec[_tool_label]
 
@@ -118,8 +118,8 @@ class TestDestinations(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'force_destination_id': False,
                 'runner': _dest_label
             }

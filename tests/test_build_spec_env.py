@@ -15,8 +15,8 @@ class TestBuildSpecEnv(unittest.TestCase):
         """
         _tool_label = '_unittest_tool'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'env': {
                     'name1': 'value1',
                     'name2': "value2"
@@ -45,8 +45,8 @@ class TestBuildSpecEnv(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label,
                 'env': {
                     'name1': 'value1',
@@ -54,14 +54,13 @@ class TestBuildSpecEnv(unittest.TestCase):
                 }
             }
         }
-        _dest_spec = {_dest_label:
-            {
+        _dest_spec = {
+            _dest_label: {
                 'env': {},
-                'params':
-                    {
-                        'request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}'
-                    }
+                'params': {
+                    'request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}'
+                }
             }
         }
 
@@ -86,8 +85,8 @@ class TestBuildSpecEnv(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label,
                 'env': {
                     'name1': 'value1',
@@ -95,16 +94,15 @@ class TestBuildSpecEnv(unittest.TestCase):
                 }
             }
         }
-        _dest_spec = {_dest_label:
-            {
+        _dest_spec = {
+            _dest_label: {
                 'env': {
                     'name2': "value3"
                 },
-                'params':
-                    {
-                        'request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}'
-                    }
+                'params': {
+                    'request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}'
+                }
             }
         }
 
@@ -130,8 +128,8 @@ class TestBuildSpecEnv(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label,
                 'env': {
                     'name1': 'value1',
@@ -139,16 +137,15 @@ class TestBuildSpecEnv(unittest.TestCase):
                 }
             }
         }
-        _dest_spec = {_dest_label:
-            {
+        _dest_spec = {
+            _dest_label: {
                 'env': {
                     'name3': "value3"
                 },
-                'params':
-                    {
-                        'request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}'
-                    }
+                'params': {
+                    'request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}'
+                }
             }
         }
 

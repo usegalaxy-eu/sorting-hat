@@ -13,13 +13,15 @@ class TestBuildSpecTags(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
+        _tool_spec = {
+            _tool_label:
             {
                 'runner': _dest_label
             }
         }
 
-        _dest_spec = {_dest_label:
+        _dest_spec = {
+            _dest_label:
             {
                 'env': {},
                 'params': {}
@@ -42,7 +44,8 @@ class TestBuildSpecTags(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _tool_tags = 'unittest_tool_tag'
 
-        _tool_spec = {_tool_label:
+        _tool_spec = {
+            _tool_label:
             {
                 'tags': _tool_tags
             }
@@ -64,13 +67,15 @@ class TestBuildSpecTags(unittest.TestCase):
         _dest_label = '_unittest_destination'
         _dest_tags = 'unittest_destination_tag'
 
-        _tool_spec = {_tool_label:
+        _tool_spec = {
+            _tool_label:
             {
                 'runner': _dest_label
             }
         }
 
-        _dest_spec = {_dest_label:
+        _dest_spec = {
+            _dest_label:
             {
                 'env': {},
                 'params': {},
@@ -96,14 +101,16 @@ class TestBuildSpecTags(unittest.TestCase):
         _dest_label = '_unittest_destination'
         _dest_tags = 'unittest_destination_tag'
 
-        _tool_spec = {_tool_label:
+        _tool_spec = {
+            _tool_label:
             {
                 'runner': _dest_label,
                 'tags': _tool_tags
             }
         }
 
-        _dest_spec = {_dest_label:
+        _dest_spec = {
+            _dest_label:
             {
                 'env': {},
                 'params': {},

@@ -13,19 +13,18 @@ class TestFastTurnaround(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = 'condor_unittest_destination'
 
-        _tool_spec = {_tool_label:
-                          {
-                              'runner': _dest_label
-                          }
+        _tool_spec = {
+            _tool_label: {
+                'runner': _dest_label
+            }
         }
-        _dest_spec = {_dest_label:
-          {
-            'env': { },
-            'params':
-              {
-                'requirements': 'GalaxyGroup == "to_be_updated"'
-              }
-          }
+        _dest_spec = {
+            _dest_label: {
+                'env': {},
+                'params': {
+                    'requirements': 'GalaxyGroup == "to_be_updated"'
+                }
+            }
         }
 
         self.td[_tool_label] = _tool_spec[_tool_label]

@@ -15,7 +15,7 @@ class TestSpecialTools(unittest.TestCase):
         """
         result = {
             'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'},
-                    {'name': 'GALAXY_MEMORY_MB', 'value': '307'}, 
+                    {'name': 'GALAXY_MEMORY_MB', 'value': '307'},
                     {'name': 'GALAXY_SLOTS', 'value': '1'},
                     {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'request_cpus': '1',
@@ -28,7 +28,7 @@ class TestSpecialTools(unittest.TestCase):
                                      'requirements': 'GalaxyTraining == false'
                                      },
                           }
-            }
+        }
         tool_id = 'upload1'
 
         env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
@@ -44,7 +44,7 @@ class TestSpecialTools(unittest.TestCase):
         """
         result = {
             'env': [{'name': 'NUMBA_CACHE_DIR', 'value': '/data/2/galaxy_db/tmp'},
-                    {'name': 'GALAXY_MEMORY_MB', 'value': '307'}, 
+                    {'name': 'GALAXY_MEMORY_MB', 'value': '307'},
                     {'name': 'GALAXY_SLOTS', 'value': '1'},
                     {'name': 'TEMP', 'value': '/data/1/galaxy_db/tmp'}],
             'params': {'priority': '-128', 'request_memory': '0.3G', 'request_cpus': '1',
@@ -106,21 +106,23 @@ class TestSpecialTools(unittest.TestCase):
         _tool_label = 'interactive_tool_unittest_tool'
         _dest_label = 'docker_unittest_destination'
 
-        _tool_spec = {_tool_label:
+        _tool_spec = {
+            _tool_label:
             {
                 'runner': _dest_label
             }
         }
-        _dest_spec = {_dest_label:
+        _dest_spec = {
+            _dest_label:
             {
                 'env': {},
                 'params':
-                    {
-                        'request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}',
-                        'docker_enabled': True,
-                        'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
-                    }
+                {
+                    'request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}',
+                    'docker_enabled': True,
+                    'requirements': 'GalaxyDockerHack == True && GalaxyGroup == "compute"'
+                }
             }
         }
 

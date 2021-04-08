@@ -1,6 +1,6 @@
 import unittest
 
-from sorting_hat import _gateway, DEFAULT_DESTINATION, TOOL_DESTINATIONS, SPECIFICATIONS
+from sorting_hat import _gateway, DEFAULT_DESTINATION, TOOL_DESTINATIONS
 
 
 class TestSpecialTools(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestSpecialTools(unittest.TestCase):
                               'mem': 4.0,
                               'gpus': 0,
                               'runner': DEFAULT_DESTINATION}
-                }
+            }
 
             env, params, runner, tool_spec, tags = _gateway(tool_id, '', '', '', '')
 

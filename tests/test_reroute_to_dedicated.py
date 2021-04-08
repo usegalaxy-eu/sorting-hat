@@ -22,11 +22,12 @@ class TestBuildSpecRunner(unittest.TestCase):
         _user_roles = ['training-unittest_training1', 'training-unittest_training2']
 
         result = {
-                'params': {
-                    'requirements': '(GalaxyGroup == "compute") || ((GalaxyGroup == "{}") || (GalaxyGroup == "{}"))'.format(_user_roles[0], _user_roles[1]),
-                    '+Group': '"{}, {}"'.format(_user_roles[0], _user_roles[1]),
-                    },
-            }
+            'params': {
+                'requirements': '(GalaxyGroup == "compute") || ((GalaxyGroup == "{}") || (GalaxyGroup == "{}"))'.format(
+                    _user_roles[0], _user_roles[1]),
+                '+Group': '"{}, {}"'.format(_user_roles[0], _user_roles[1]),
+            },
+        }
 
         _, params, _, _, _ = _gateway(self.tool_id, '', _user_roles, '', '', tools_spec=self.td)
 
@@ -43,11 +44,12 @@ class TestBuildSpecRunner(unittest.TestCase):
         _user_roles = ['training-gcc-unittest_training1', 'training-gcc-unittest_training2']
 
         result = {
-                'params': {
-                    'requirements': '(GalaxyGroup == "compute") || ((GalaxyGroup == "{}") || (GalaxyGroup == "{}") || (GalaxyGroup == "{}"))'.format(_user_roles[0], _user_roles[1], "training-gcc"),
-                    '+Group': '"{}, {}, {}"'.format(_user_roles[0], _user_roles[1], "training-gcc"),
-                    },
-            }
+            'params': {
+                'requirements': '(GalaxyGroup == "compute") || ((GalaxyGroup == "{}") || (GalaxyGroup == "{}") || (GalaxyGroup == "{}"))'.format(
+                    _user_roles[0], _user_roles[1], "training-gcc"),
+                '+Group': '"{}, {}, {}"'.format(_user_roles[0], _user_roles[1], "training-gcc"),
+            },
+        }
 
         _, params, _, _, _ = _gateway(self.tool_id, '', _user_roles, '', '', tools_spec=self.td)
 

@@ -13,8 +13,8 @@ class TestRunnerHint(unittest.TestCase):
         d_labels = ['condor_unittest_destination', 'remote_cluster_mq_ut01']
         for d in d_labels:
             _dest_label = d
-            _dest_spec = {_dest_label:
-                {
+            _dest_spec = {
+                _dest_label: {
                     'limits': {},
                     'env': {},
                     'params': {}
@@ -40,8 +40,9 @@ class TestRunnerHint(unittest.TestCase):
         for u in up_labels:
             for r in t_runner_labels:
                 _tool_label = '_unittest_tool'
-                _tool_spec = {_tool_label: {
-                    'runner': r
+                _tool_spec = {
+                    _tool_label: {
+                        'runner': r
                     }
                 }
                 self.td[_tool_label] = _tool_spec[_tool_label]

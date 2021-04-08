@@ -16,15 +16,16 @@ class TestBuildSpecRunner(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = 'condor_unittest_destination'
 
-        _tool_spec = {_tool_label: {}}
-        _dest_spec = {_dest_label:
-            {
+        _tool_spec = {
+            _tool_label: {}
+        }
+        _dest_spec = {
+            _dest_label: {
                 'env': {},
-                'params':
-                    {
-                        'request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}'
-                    }
+                'params': {
+                    'request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}'
+                }
             }
         }
 
@@ -46,20 +47,19 @@ class TestBuildSpecRunner(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = 'remote_cluster_mq_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label
             }
         }
-        _dest_spec = {_dest_label:
-            {
+        _dest_spec = {
+            _dest_label: {
                 'env': {},
-                'params':
-                    {
-                        'submit_request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}',
-                        'request_gpus': '{GPUS}'
-                    }
+                'params': {
+                    'submit_request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}',
+                    'request_gpus': '{GPUS}'
+                }
             }
         }
 
@@ -79,8 +79,8 @@ class TestBuildSpecRunner(unittest.TestCase):
         Test unknown runner value, should reply with the DEFAULT_DESTINATION
         """
         _tool_label = '_unittest_tool'
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': 'unknown'
             }
         }
@@ -102,25 +102,24 @@ class TestBuildSpecRunner(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = 'remote_condor_cluster_gpu_docker'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label
             }
         }
-        _dest_spec = {_dest_label:
-            {
+        _dest_spec = {
+            _dest_label: {
                 'env': {},
-                'params':
-                    {
-                        'submit_request_cpus': '{PARALLELISATION}',
-                        'request_memory': '{MEMORY}',
-                        'request_gpus': '{GPUS}'
-                    }
+                'params': {
+                    'submit_request_cpus': '{PARALLELISATION}',
+                    'request_memory': '{MEMORY}',
+                    'request_gpus': '{GPUS}'
+                }
             }
         }
 
         self.td[_tool_label] = _tool_spec[_tool_label]
-        
+
         result = ['pulsar_eu_de03', 'pulsar_eu_uk01']
         tool_id = _tool_label
 
@@ -128,7 +127,7 @@ class TestBuildSpecRunner(unittest.TestCase):
         _, _, runner, _ = build_spec(tool_spec, dest_spec=self.sp)
 
         self.assertIn(runner, result)
-        
+
 
 if __name__ == '__main__':
     unittest.main()

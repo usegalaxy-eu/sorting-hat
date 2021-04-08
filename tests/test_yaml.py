@@ -17,9 +17,9 @@ class TestYamlFile(unittest.TestCase):
         cnt = collections.Counter()
         with open(TOOL_DESTINATION_PATH, 'r') as fp:
             lines = fp.readlines()
-        for l in lines:
-            if l[0] in ascii_letters:
-                cnt[l.split(':')[0]] += 1
+        for line in lines:
+            if line[0] in ascii_letters:
+                cnt[line.split(':')[0]] += 1
 
         k, v = cnt.most_common(1)[0]
         self.assertEqual(1, v, msg="Duplication found: {} is present {} times".format(k, v))

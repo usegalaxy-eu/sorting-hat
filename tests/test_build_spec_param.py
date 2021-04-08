@@ -16,8 +16,8 @@ class TestBuildSpecParam(unittest.TestCase):
         """
         _tool_label = '_unittest_tool'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'cores': 3
             }
         }
@@ -25,9 +25,9 @@ class TestBuildSpecParam(unittest.TestCase):
         self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = {
-                'params': {'request_cpus': '3'}
+            'params': {'request_cpus': '3'}
         }
-        
+
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, self.td, [])
@@ -45,11 +45,11 @@ class TestBuildSpecParam(unittest.TestCase):
                 cores = str(TOOL_DESTINATIONS[tool_label]['cores'])
             else:
                 cores = '1'
-            
+
             result = {
-                    'params': {'request_cpus': cores}
+                'params': {'request_cpus': cores}
             }
-            
+
             tool_id = tool_label
             tool_spec = _finalize_tool_spec(tool_id, TOOL_DESTINATIONS, [])
             _, params, dest, _ = build_spec(tool_spec, dest_spec=SPECIFICATIONS)
@@ -62,16 +62,16 @@ class TestBuildSpecParam(unittest.TestCase):
     def test_pass_param_gpus_and_destination(self):
         """
         Test tool with undefined gpu and destination against all destinations.
-        If destination starts with remote_cluster_mq, 'submit_request_gpus' hasn't 
+        If destination starts with remote_cluster_mq, 'submit_request_gpus' hasn't
         to be present in params.
-        If destination starts with condor, 'request_gpus' hasn't 
+        If destination starts with condor, 'request_gpus' hasn't
         to be present in params.
         """
         _tool_label = '_unittest_tool'
-        for dest in SPECIFICATIONS:   
-            _tool_spec = {_tool_label:
-                {
-                    'runner':  dest,
+        for dest in SPECIFICATIONS:
+            _tool_spec = {
+                _tool_label: {
+                    'runner': dest,
                 }
             }
             self.td[_tool_label] = _tool_spec[_tool_label]
@@ -84,15 +84,15 @@ class TestBuildSpecParam(unittest.TestCase):
                 self.assertFalse('submit_request_gpus' in params)
             if dest.startswith('condor'):
                 self.assertFalse('request_gpus' in params)
-  
+
     def test_pass_param_mem(self):
         """
         Test tool with defined mem
         """
         _tool_label = '_unittest_tool'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'mem': 32
             }
         }
@@ -100,9 +100,9 @@ class TestBuildSpecParam(unittest.TestCase):
         self.td[_tool_label] = _tool_spec[_tool_label]
 
         result = {
-                'params': {'request_memory': '32.0G'}
+            'params': {'request_memory': '32.0G'}
         }
-        
+
         tool_id = _tool_label
 
         tool_spec = _finalize_tool_spec(tool_id, self.td, [])
@@ -117,8 +117,8 @@ class TestBuildSpecParam(unittest.TestCase):
         _tool_label = '_unittest_tool'
         for dest in SPECIFICATIONS:
             with self.subTest(dest=dest):
-                _tool_spec = {_tool_label:
-                    {
+                _tool_spec = {
+                    _tool_label: {
                         'runner': dest,
                         'docker_set_user': 1000,
                         'docker_run_extra_arguments': 'extra argument',
@@ -129,7 +129,7 @@ class TestBuildSpecParam(unittest.TestCase):
                     'params': {
                         'docker_set_user': '1000',
                         'docker_run_extra_arguments': 'extra argument',
-                        },
+                    },
                 }
 
                 tool_id = _tool_label
@@ -149,37 +149,36 @@ class TestBuildSpecParam(unittest.TestCase):
         _tool_label = '_unittest_tool'
         _dest_label = '_unittest_destination'
 
-        _tool_spec = {_tool_label:
-            {
+        _tool_spec = {
+            _tool_label: {
                 'runner': _dest_label
             }
         }
-        _dest_spec = {_dest_label:
-            {
+        _dest_spec = {
+            _dest_label: {
                 'env': {},
-                'params':
-                    {
-                        'subparam': [
-                            {
-                                'name1': 'value1',
-                                'name2': "value2"
-                            }
-                        ]
-                    }
+                'params': {
+                    'subparam': [
+                        {
+                            'name1': 'value1',
+                            'name2': "value2"
+                        }
+                    ]
+                }
             }
         }
 
         self.td[_tool_label] = _tool_spec[_tool_label]
         self.sp[_dest_label] = _dest_spec[_dest_label]
         result = {
-                'params': {
-                    'subparam': [
-                        {
-                           'name1': 'value1',
-                           'name2': "value2"
-                        }
-                    ]
-                }
+            'params': {
+                'subparam': [
+                    {
+                        'name1': 'value1',
+                        'name2': "value2"
+                    }
+                ]
+            }
         }
         tool_id = _tool_label
         tool_spec = _finalize_tool_spec(tool_id, self.td, [])
