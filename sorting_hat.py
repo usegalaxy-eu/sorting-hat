@@ -206,7 +206,7 @@ def _weighted_random_sampling(destinations, dest_spec):
     bunch = []
     for d in destinations:
         weight = dest_spec[d].get('nodes', 1)
-        bunch += [d]*weight
+        bunch += [d] * weight
     destination = sample(bunch, 1)[0]
     return destination
 
@@ -303,7 +303,7 @@ def reroute_to_dedicated(user_roles):
         # The user does have one or more training roles.
         # So we must construct a requirement / ranking expression.
         training_expr = " || ".join(['(GalaxyGroup == "%s")' % role for role in training_roles])
-        training_labels = '"'+", ".join(['%s' % role for role in training_roles])+'"'
+        training_labels = '"' + ", ".join(['%s' % role for role in training_roles]) + '"'
         return {
             # We require that it does not run on machines that the user is not in the role for.
             # We then rank based on what they *do* have the roles for.
