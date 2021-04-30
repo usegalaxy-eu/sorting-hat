@@ -32,7 +32,7 @@ class TestYamlFile(unittest.TestCase):
             for k in value.keys():
                 with self.subTest(k=k):
                     self.assertTrue(k in TOOL_DESTINATION_ALLOWED_KEYS,
-                                    msg="{} in {} is not an allowed key".format(k, tool))
+                                    msg="{} in {} tool is not an allowed key".format(k, tool))
 
     def test_specifications_keys(self):
         """
@@ -42,17 +42,17 @@ class TestYamlFile(unittest.TestCase):
             for k in value.keys():
                 with self.subTest(k=k):
                     self.assertTrue(k in SPECIFICATION_ALLOWED_KEYS,
-                                    msg="{} in {} is not an allowed key".format(k, destination))
+                                    msg="{} in {} destination is not an allowed key".format(k, destination))
 
     def test_specification_needed_keys(self):
         """
         Test if destinations have the needed keys
         """
-        needed_keys = ['env', 'limits', 'params']
+        needed_keys = ['info', 'env', 'limits', 'params']
         for k in needed_keys:
             for destination, value in SPECIFICATIONS.items():
                 if 'unittest' not in destination:
-                    with self.subTest(value=value.keys()):
+                    with self.subTest(destination=destination, value=value.keys()):
                         self.assertTrue(k in value,
                                         msg="{} is not defined into {} destination".format(k, destination))
 

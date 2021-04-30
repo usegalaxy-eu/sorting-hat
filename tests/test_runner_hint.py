@@ -59,13 +59,13 @@ class TestRunnerHint(unittest.TestCase):
                 else:
                     self.assertEqual(runner, results[u])
 
-    def test_skip_runner_hint(self):
+    def test_skip_user_preferences(self):
         """
-        Check if tools associated with the "skip_runner_hint" label are really skipped
+        Check if tools associated with the "skip_user_preferences" label are really skipped
         DEFAULT_DESTINATION is assumed to be the proper runner for these tools
         """
         up_labels = ['remote_cluster_mq_ut01', 'condor_unittest_destination', 'None']
-        tools_to_skip = [k for k, v in SPECIAL_TOOLS.items() if v == 'skip_runner_hint']
+        tools_to_skip = [k for k, v in SPECIAL_TOOLS.items() if 'skip_user_preferences' in v]
         for t in tools_to_skip:
             for u in up_labels:
                 _user_preferences = {
@@ -75,3 +75,49 @@ class TestRunnerHint(unittest.TestCase):
                 _, _, runner, _, _ = _gateway(tool_id, _user_preferences, '', '', '', dest_spec=self.sp)
 
                 self.assertEqual(runner, DEFAULT_DESTINATION)
+
+    def test_tool_pulsar_incompatible(self):
+        """
+        For a pulsar incompatible tool,  _gateway function should return the default runner
+        even if the tool is requesting a different destination
+        """
+        result = {
+            'runner': DEFAULT_DESTINATION,
+        }
+        up_labels = {
+            'remote_unittest_destination': 'True',
+            'local_unittest_destination': 'False',
+            'None': 'False'
+        }
+        pulsar_incompatible_tools = [k for k, v in SPECIAL_TOOLS.items() if 'pulsar_incompatible' in v]
+        for t in pulsar_incompatible_tools:
+            for d, v in up_labels.items():
+                _tool_label = t
+                _dest_label = d
+
+                _tool_spec = {
+                    _tool_label: {
+                        'runner': _dest_label
+                    }
+                }
+                _dest_spec = {
+                    _dest_label:
+                    {
+                        'info': {
+                            'remote': v
+                        },
+                        'env': {},
+                        'params': {
+                            'request_cpus': '{PARALLELISATION}',
+                            'request_memory': '{MEMORY}'
+                        }
+                    }
+                }
+
+                self.td[_tool_label] = _tool_spec[_tool_label]
+                self.sp[_dest_label] = _dest_spec[_dest_label]
+                tool_id = _tool_label
+
+                _, params, runner, _, _ = _gateway(tool_id, '', '', '', '', tools_spec=self.td, dest_spec=self.sp)
+                with self.subTest(t=t, d=d):
+                    self.assertEqual(runner, result['runner'])

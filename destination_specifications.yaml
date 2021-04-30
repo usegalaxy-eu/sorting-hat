@@ -1,5 +1,8 @@
 ---
 condor:
+  info:
+    remote: 'False'
+    scheduler: 'condor'
   limits:
     cores: 40
     mem: 1000
@@ -15,10 +18,13 @@ condor:
     tmp_dir: 'True'
 
 condor_singularity:
+  info:
+    remote: 'False'
+    scheduler: 'condor'
   limits:
     cores: 40
     mem: 1000
-  env: {}
+  env: { }
   params:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
@@ -32,6 +38,9 @@ condor_singularity:
     tmp_dir: 'True'
 
 condor_singularity_with_conda:
+  info:
+    remote: 'False'
+    scheduler: 'condor'
   limits:
     cores: 40
     mem: 1000
@@ -55,10 +64,13 @@ condor_singularity_with_conda:
         identifier: '/cvmfs/singularity.galaxyproject.org/all/centos:8.3.2011'
 
 condor_docker_ie:
+  info:
+    remote: 'False'
+    scheduler: 'condor'
   limits:
     cores: 10
     mem: 50
-  env: {}
+  env: { }
   params:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
@@ -76,10 +88,13 @@ condor_docker_ie:
 
 
 condor_docker_ie_interactive:
+  info:
+    remote: 'False'
+    scheduler: 'condor'
   limits:
     cores: 10
     mem: 50
-  env: {}
+  env: { }
   params:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
@@ -96,10 +111,13 @@ condor_docker_ie_interactive:
     tmp_dir: 'True'
 
 condor_docker:
+  info:
+    remote: 'False'
+    scheduler: 'condor'
   limits:
     cores: 16
     mem: 31
-  env: {}
+  env: { }
   params:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
@@ -116,10 +134,13 @@ condor_docker:
     tmp_dir: 'True'
 
 condor_docker_interactive:
+  info:
+    remote: 'False'
+    scheduler: 'condor'
   limits:
     cores: 16
     mem: 31
-  env: {}
+  env: { }
   params:
     priority: -{PRIORITY}
     request_cpus: '{PARALLELISATION}'
@@ -136,6 +157,9 @@ condor_docker_interactive:
     tmp_dir: 'True'
 
 remote_cluster_mq_it01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 16
     mem: 31
@@ -158,6 +182,9 @@ remote_cluster_mq_it01:
     singularity_default_container_id: '/cvmfs/singularity.galaxyproject.org/u/b/ubuntu:18.04'
 
 remote_cluster_mq_be01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 8
     mem: 15
@@ -176,6 +203,9 @@ remote_cluster_mq_be01:
     transport: 'curl'
 
 remote_cluster_mq_de01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 16
     mem: 31
@@ -198,6 +228,9 @@ remote_cluster_mq_de01:
     singularity_default_container_id: '/cvmfs/singularity.galaxyproject.org/u/b/ubuntu:18.04'
 
 remote_cluster_mq_docker_de01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 16
     mem: 31
@@ -226,10 +259,13 @@ remote_cluster_mq_docker_de01:
 
 remote_cluster_mq_de02:
   ## our singularity test bed
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 16
     mem: 31
-  env: {}
+  env: { }
   params:
     priority: -{PRIORITY}
     submit_submit_request_cpus: '{PARALLELISATION}'
@@ -241,6 +277,9 @@ remote_cluster_mq_de02:
     tmp_dir: 'True'
 
 remote_cluster_mq_de03:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 8
     mem: 19
@@ -265,6 +304,9 @@ remote_cluster_mq_de03:
     singularity_default_container_id: '/cvmfs/singularity.galaxyproject.org/u/b/ubuntu:18.04'
 
 remote_cluster_mq_docker_de03:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   nodes: 18
   limits:
     cores: 8
@@ -297,9 +339,10 @@ remote_cluster_mq_docker_de03:
     docker_run_extra_arguments: '--gpus all'
     tmp_dir: 'True'
 
-
-
 remote_cluster_mq_pt01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 4
     mem: 15
@@ -319,15 +362,18 @@ remote_cluster_mq_pt01:
     transport: 'curl'
 
 remote_cluster_mq_uk01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 60
     mem: 300
     gpus: 1
   env:
-      GALAXY_MEMORY_MB: '{MEMORY_MB}'
-      GALAXY_SLOTS: '{PARALLELISATION}'
-      LC_ALL: C
-      SINGULARITY_CACHEDIR: /data/share/var/database/container_cache
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
+    SINGULARITY_CACHEDIR: /data/share/var/database/container_cache
   params:
     priority: -{PRIORITY}
     submit_request_cpus: '{PARALLELISATION}'
@@ -343,15 +389,18 @@ remote_cluster_mq_uk01:
     singularity_default_container_id: '/cvmfs/singularity.galaxyproject.org/u/b/ubuntu:18.04'
 
 remote_cluster_mq_docker_uk01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   nodes: 13
   limits:
     cores: 60
     mem: 300
     gpus: 1
   env:
-      GALAXY_MEMORY_MB: '{MEMORY_MB}'
-      GALAXY_SLOTS: '{PARALLELISATION}'
-      LC_ALL: C
+    GALAXY_MEMORY_MB: '{MEMORY_MB}'
+    GALAXY_SLOTS: '{PARALLELISATION}'
+    LC_ALL: C
   params:
     priority: -{PRIORITY}
     submit_request_cpus: '{PARALLELISATION}'
@@ -364,7 +413,7 @@ remote_cluster_mq_docker_uk01:
     rewrite_parameters: True
     transport: 'curl'
     docker_enabled: true
- # can and should be made stricter at some point
+    # can and should be made stricter at some point
     docker_volumes: '$galaxy_root:ro,$tool_directory:ro,$working_directory:rw,$job_directory:rw,/data/share/staging/:ro'
     docker_memory: '{MEMORY}'
     docker_auto_rm: true
@@ -375,6 +424,9 @@ remote_cluster_mq_docker_uk01:
     tmp_dir: 'True'
 
 remote_cluster_mq_it02:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 4
     mem: 7
@@ -397,6 +449,9 @@ remote_cluster_mq_it02:
     singularity_default_container_id: '/cvmfs/singularity.galaxyproject.org/u/b/ubuntu:18.04'
 
 remote_cluster_mq_fr01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 8
     mem: 31
@@ -419,6 +474,9 @@ remote_cluster_mq_fr01:
     singularity_default_container_id: '/cvmfs/singularity.galaxyproject.org/u/b/ubuntu:18.04'
 
 remote_cluster_mq_fi01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 8
     mem: 31
@@ -441,6 +499,9 @@ remote_cluster_mq_fi01:
     singularity_default_container_id: '/cvmfs/singularity.galaxyproject.org/u/b/ubuntu:18.04'
 
 remote_cluster_mq_no01:
+  info:
+    remote: 'True'
+    scheduler: 'condor'
   limits:
     cores: 4
     mem: 15

@@ -343,12 +343,18 @@ def _gateway(tool_id, user_preferences, user_roles, user_id, user_email,
     # Use this hint to force a destination (e.g. defined from the user's preferences)
     # but not for all tools
     runner_hint = None
-    tools_to_skip = [k for k, v in special_tools.items() if v == 'skip_runner_hint']
+    tools_to_skip = [k for k, v in special_tools.items() if 'skip_user_preferences' in v]
     if tool_id not in tools_to_skip:
         for data_item in user_preferences:
             if "distributed_compute|remote_resources" in data_item:
                 if user_preferences[data_item] != "None":
                     runner_hint = user_preferences[data_item]
+
+    # If a tool is in the pulsar_incompatible list, force the default destination.
+    tools_pulsar_incompatible = [k for k, v in special_tools.items() if 'pulsar_incompatible' in v]
+    # print(tool_spec['runner'], tool_id, dest_spec.get(tool_spec['runner']).get('info'))
+    if tool_id in tools_pulsar_incompatible and dest_spec.get(tool_spec['runner']).get('info').get('remote'):
+        runner_hint = DEFAULT_DESTINATION
 
     # Ensure that this tool is permitted to run, otherwise, throw an exception.
     assert_permissions(tool_spec, user_email, user_roles)

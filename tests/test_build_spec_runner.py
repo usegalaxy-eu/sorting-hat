@@ -107,16 +107,6 @@ class TestBuildSpecRunner(unittest.TestCase):
                 'runner': _dest_label
             }
         }
-        _dest_spec = {
-            _dest_label: {
-                'env': {},
-                'params': {
-                    'submit_request_cpus': '{PARALLELISATION}',
-                    'request_memory': '{MEMORY}',
-                    'request_gpus': '{GPUS}'
-                }
-            }
-        }
 
         self.td[_tool_label] = _tool_spec[_tool_label]
 
