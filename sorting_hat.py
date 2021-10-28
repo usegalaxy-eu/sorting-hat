@@ -275,6 +275,10 @@ def build_spec(tool_spec, dest_spec, runner_hint=None):
 
     if 'condor' in destination:
         runner = 'condor'
+    elif 'slurm' in destination:
+        runner = 'slurm'
+    elif 'pulsar_embedded' in destination:
+        runner = 'pulsar_embedded'
     elif 'remote_cluster_mq' in destination:
         # destination label has to follow this convention:
         # remote_cluster_mq_feature1_feature2_feature3_pulsarid
