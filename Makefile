@@ -48,5 +48,4 @@ $(BIN)/activate: requirements.txt
 	test -f $(BIN)/activate || $(PY) -m venv $(VENV)
 	. $(BIN)/activate ;\
 	$(BIN)/pip install -Ur requirements.txt
-	$(BIN)/pip install -Ur galaxy/dependencies/pinned-requirements.txt
 	touch venv/bin/activate
