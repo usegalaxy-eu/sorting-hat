@@ -2,6 +2,7 @@
 PY = python3
 VENV = venv
 BIN=$(VENV)/bin
+GX = galaxy
 
 help:
 	@echo "Please digit \`make _target_\` "
@@ -26,20 +27,20 @@ test-eu: galaxy/jobs $(VENV)
 	git checkout -- tool_destinations.yaml
 
 lint: $(VENV)
-	$(BIN)/flake8 --exclude $(VENV) --count --select=E9,F63,F7,F82 --show-source --statistics
-	$(BIN)/flake8 --exclude $(VENV) --count --exit-zero --ignore=E501 --statistics
+	$(BIN)/flake8 --exclude $(VENV),$(GX) --count --select=E9,F63,F7,F82 --show-source --statistics
+	$(BIN)/flake8 --exclude $(VENV),$(GX) --count --exit-zero --ignore=E501 --statistics
 
 clean:
 	find . -name '*.pyc' -delete
 	find . -type d -name '__pycache__' -exec rm -rf {} +
 	rm -rf galaxy $(VENV)
 
-galaxy/jobs:
-	mkdir -p galaxy/jobs
-	echo "class JobDestination:" > galaxy/jobs/__init__.py
-	echo '    """"""' >> galaxy/jobs/__init__.py
-	echo "class JobMappingException:" > galaxy/jobs/mapper.py
-	echo '    """"""' >> galaxy/jobs/mapper.py
+$(GX)/jobs:
+	mkdir -p $(GX)/jobs
+	echo "class JobDestination:" > $(GX)/jobs/__init__.py
+	echo '    """"""' >> $(GX)/jobs/__init__.py
+	echo "class JobMappingException:" > $(GX)/jobs/mapper.py
+	echo '    """"""' >> $(GX)/jobs/mapper.py
 
 $(VENV): $(BIN)/activate
 
@@ -47,4 +48,5 @@ $(BIN)/activate: requirements.txt
 	test -f $(BIN)/activate || $(PY) -m venv $(VENV)
 	. $(BIN)/activate ;\
 	$(BIN)/pip install -Ur requirements.txt
+	$(BIN)/pip install -Ur galaxy/dependencies/pinned-requirements.txt
 	touch venv/bin/activate
