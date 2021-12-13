@@ -48,6 +48,7 @@ from copy import deepcopy
 from galaxy.jobs import JobDestination
 from galaxy.jobs.mapper import JobMappingException
 from random import sample
+import math
 
 
 class DetailsFromYamlFile:
@@ -471,3 +472,75 @@ def gateway_checkpoint(app, job, tool, user):
     _special_case(param_dict, tool_id, user_id, user_roles)
 
     return gateway(tool_id, user)
+
+
+def _compute_memory_for_hifiasm(param_dict):
+    computed_memory = 0
+    converter = {
+        'g': 1,
+        'G': 1,
+        'm': 1000,
+        'M': 1000,
+        'k': 1000000,
+        'K': 1000000
+    }
+    kcov = 36
+    if 'advanced_options' in param_dict:
+        if 'kcov' in param_dict['advanced_options']:
+            kcov = param_dict['advanced_options']['kcov']
+        if 'hg_size' in param_dict['advanced_options']:
+            hg_size = param_dict['advanced_options']['hg_size']
+            hg_size_suffix = hg_size[-1:]
+            hg_size_value = float(hg_size[:len(hg_size)-1].replace(",", "."))
+            # (len*(kmercov*2) * 1.75
+            hg_size_value_in_Gb = hg_size_value / converter[hg_size_suffix]
+            computed_memory = math.ceil(hg_size_value_in_Gb*(kcov*2)*1.75)
+
+    return computed_memory
+
+
+def gateway_for_hifism(app, job, tool, user):
+    """"
+    The memory requirement of Hifiasm depends on a wrapper's input
+    """
+    param_dict = dict([(p.name, p.value) for p in job.parameters])
+    param_dict = tool.params_from_strings(param_dict, app)
+    tool_id = tool.id
+    if user:
+        user_roles = [role.name for role in user.all_roles() if not role.deleted]
+        user_preferences = user.extra_preferences
+        email = user.email
+        user_id = user.id
+    else:
+        user_roles = []
+        user_preferences = []
+        email = ''
+        user_id = -1
+
+    try:
+        env, params, runner, spec, tags = _gateway(tool_id, user_preferences, user_roles, user_id, email,
+                                                   ft=FAST_TURNAROUND, special_tools=SPECIAL_TOOLS,
+                                                   memory_scale=memory_scale)
+    except Exception as e:
+        return JobMappingException(str(e))
+
+    limits = _get_limits(runner)
+    request_memory = str(min(_compute_memory_for_hifiasm(param_dict), limits.get('mem'))) + 'G'
+    params['request_memory'] = request_memory
+
+    resubmit = []
+    if next_dest:
+        resubmit = [{
+            'condition': 'any_failure and attempt <= 3',
+            'destination': next_dest
+        }]
+
+    name = name_it(spec)
+    return JobDestination(
+        id=name,
+        tags=tags,
+        runner=runner,
+        params=params,
+        env=env,
+        resubmit=resubmit,
+    )

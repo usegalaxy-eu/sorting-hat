@@ -1,7 +1,7 @@
 import unittest
 import random
 
-from sorting_hat import _special_case
+from sorting_hat import _special_case, _compute_memory_for_hifiasm
 
 
 class TestToolsSpecialCases(unittest.TestCase):
@@ -53,6 +53,33 @@ class TestToolsSpecialCases(unittest.TestCase):
         user_roles = ['not_' + user_role]
         with self.assertRaises(Exception):
             _special_case(param_dict, tool_id, None, user_roles)
+
+    def test_compute_memory_for_hifiasm(self):
+        """
+        this function returns a number, rounded upward to its nearest integer,
+        as result of this formula:
+        (hg_size*(kcov*2) * 1.75
+        hg_size can have suffix like m,M,k,K,g,G and is a float
+        kcov is an integer
+        """
+        test_array = [
+            {'kcov': 40, 'hg_size': '3g', 'result': 420},
+            {'kcov': 40, 'hg_size': '3G', 'result': 420},
+            {'kcov': 40, 'hg_size': '3.1g', 'result': 434},
+            {'kcov': 40, 'hg_size': '3.1G', 'result': 434},
+            {'kcov': 40, 'hg_size': '3,1g', 'result': 434},
+            {'kcov': 40, 'hg_size': '3,1G', 'result': 434},
+            {'kcov': 40, 'hg_size': '2.6g', 'result': 364},
+            {'kcov': 40, 'hg_size': '100m', 'result': 14},
+            {'kcov': 36, 'hg_size': '100m', 'result': 13},
+        ]
+        param_dict = {}
+        param_dict.setdefault('advanced_options', {})
+        for t in test_array:
+            param_dict['advanced_options']['hg_size'] = t['hg_size']
+            param_dict['advanced_options']['kcov'] = t['kcov']
+            with self.subTest(hg_size=t['hg_size'], kcov=t['kcov']):
+                self.assertEqual(t['result'], _compute_memory_for_hifiasm(param_dict))
 
 
 if __name__ == '__main__':
