@@ -490,16 +490,17 @@ def _compute_memory_for_hifiasm(param_dict):
             kcov = param_dict['advanced_options']['kcov']
         if 'hg_size' in param_dict['advanced_options']:
             hg_size = param_dict['advanced_options']['hg_size']
-            hg_size_suffix = hg_size[-1:]
-            hg_size_value = float(hg_size[:len(hg_size)-1].replace(",", "."))
-            # (len*(kmercov*2) * 1.75
-            hg_size_value_in_Gb = hg_size_value / converter[hg_size_suffix]
-            computed_memory = math.ceil(hg_size_value_in_Gb*(kcov*2)*1.75)
+            if len(hg_size) > 1:
+                hg_size_suffix = hg_size[-1:]
+                hg_size_value = float(hg_size[:len(hg_size)-1].replace(",", "."))
+                # (len*(kmercov*2) * 1.75
+                hg_size_value_in_Gb = hg_size_value / converter[hg_size_suffix]
+                computed_memory = math.ceil(hg_size_value_in_Gb*(kcov*2)*1.75)
 
     return computed_memory
 
 
-def gateway_for_hifism(app, job, tool, user):
+def gateway_for_hifiasm(app, job, tool, user, next_dest=None):
     """"
     The memory requirement of Hifiasm depends on a wrapper's input
     """
@@ -525,8 +526,8 @@ def gateway_for_hifism(app, job, tool, user):
         return JobMappingException(str(e))
 
     limits = _get_limits(runner)
-    request_memory = str(min(_compute_memory_for_hifiasm(param_dict), limits.get('mem'))) + 'G'
-    params['request_memory'] = request_memory
+    request_memory = min(max(_compute_memory_for_hifiasm(param_dict), spec['mem']), limits.get('mem'))
+    params['request_memory'] = "{}{}".format(request_memory, 'G')
 
     resubmit = []
     if next_dest:
@@ -535,6 +536,7 @@ def gateway_for_hifism(app, job, tool, user):
             'destination': next_dest
         }]
 
+    spec['mem'] = request_memory
     name = name_it(spec)
     return JobDestination(
         id=name,
