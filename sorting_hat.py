@@ -126,9 +126,27 @@ def assert_permissions(tool_spec, user_email, user_roles):
     if 'allow' not in permissions:
         raise Exception("JCaaS Configuration error 2")
 
-    if 'users' not in permissions['allow'] and 'roles' not in permissions['allow']:
+    if 'users' not in permissions['allow'] and 'roles' not in permissions['allow'] and 'academic_only' not in permissions['allow']:
         raise Exception("JCaaS Configuration error 3")
     # ENDTODO
+
+    if 'academic_only' in permissions['allow']:
+        """
+        echo_main_env:
+          permissions:
+            allow:
+              academic_only: true
+        """
+        import urllib.request, json 
+        # create a list of allowed/known academic domains
+        domains = set()
+        with urllib.request.urlopen("https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json") as url:
+            data = json.loads(url.read().decode())
+            for entry in data:
+                domains.update(entry['domains'])
+        user_domain = user_email.split('@')[1]
+        if user_domain in domains:
+            return
 
     # Pull out allowed users and roles, defaulting to empty lists if the keys
     # aren't there.
