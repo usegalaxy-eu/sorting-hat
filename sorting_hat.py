@@ -146,6 +146,7 @@ def assert_permissions(tool_spec, user_email, user_roles):
     # Auth failure.
     raise Exception(exception_text)
 
+
 def change_object_store_dependent_on_user(params, user_roles):
     """
     Different roles can have their own storage. Here we overwrite the object store based on user associated roles.
@@ -155,7 +156,7 @@ def change_object_store_dependent_on_user(params, user_roles):
     if 'dataplant' in user_roles:
         params['object_store_id'] = 'dataplant01'
     return params
-    
+
 
 def get_tool_id(tool_id):
     """
@@ -531,8 +532,7 @@ def gateway_for_hifiasm(app, job, tool, user, next_dest=None):
 
     try:
         env, params, runner, spec, tags = _gateway(tool_id, user_preferences, user_roles, user_id, email,
-                                                   ft=FAST_TURNAROUND, special_tools=SPECIAL_TOOLS,
-                                                   memory_scale=memory_scale)
+                                                   ft=FAST_TURNAROUND, special_tools=SPECIAL_TOOLS)
     except Exception as e:
         return JobMappingException(str(e))
 
