@@ -146,6 +146,16 @@ def assert_permissions(tool_spec, user_email, user_roles):
     # Auth failure.
     raise Exception(exception_text)
 
+def change_object_store_dependent_on_user(params, user_roles):
+    """
+    Different roles can have their own storage. Here we overwrite the object store based on user associated roles.
+    Example: A user belongs to the role 'dataplant'. Those users own dedicated storage that they include into Galaxy.
+        Here, we change the 'object_store_id' based in the role 'dataplant'.
+    """
+    if 'dataplant' in user_roles:
+        params['object_store_id'] = 'dataplant01'
+    return params
+    
 
 def get_tool_id(tool_id):
     """
@@ -432,6 +442,7 @@ def gateway(tool_id, user, memory_scale=1.0, next_dest=None):
         }]
 
     name = name_it(spec)
+    params = change_object_store_dependent_on_user(params, user_roles)
     return JobDestination(
         id=name,
         tags=tags,
