@@ -149,11 +149,11 @@ def assert_permissions(tool_spec, user_email, user_roles):
 def change_object_store_dependent_on_user(params, user_roles):
     """
     Different roles can have their own storage. Here we overwrite the object store based on user associated roles.
-    Example: A user belongs to the role 'nfdi4plants'. Those users own dedicated storage that they include into Galaxy.
-        Here, we change the 'object_store_id' based in the role 'nfdi4plants'.
+    Example: A user belongs to the role 'dataplant'. Those users own dedicated storage that they include into Galaxy.
+        Here, we change the 'object_store_id' based in the role 'dataplant'.
     """
-    if 'nfdi4plants' in user_roles:
-        params['object_store_id'] = 'bwsfs'
+    if 'dataplant' in user_roles:
+        params['object_store_id'] = 'dataplant01'
     return params
     
 
